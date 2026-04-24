@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shared Credits Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f1;
+    --surface: #ffffff;
+    --surface-2: #f0efe9;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text-primary: #1a1a18;
+    --text-secondary: #6b6b66;
+    --text-tertiary: #a0a09a;
+    --accent: #1059c1;
+    --accent-bg: #e8f0fb;
+    --accent-text: #0a3d8f;
+    --accent-sub: #2563c4;
+    --radius-md: 8px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+    --mono: 'SF Mono', 'Consolas', 'Menlo', monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141412;
+      --surface: #1e1e1b;
+      --surface-2: #282824;
+      --border: rgba(255,255,255,0.09);
+      --border-strong: rgba(255,255,255,0.16);
+      --text-primary: #f0ede6;
+      --text-secondary: #9a9890;
+      --text-tertiary: #5a5a54;
+      --accent: #4d87e8;
+      --accent-bg: #0c2a5c;
+      --accent-text: #a8c8f8;
+      --accent-sub: #7aaaf0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+    }
+  }
+
+  html, body {
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 64px;
+  }
+
+  .page-header {
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 24px;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span { color: var(--text-tertiary); }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .mode-toggle-wrap {
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 12px;
+  }
+
+  .mode-toggle {
+    display: flex;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-radius: calc(var(--radius-lg) - 4px);
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.18s;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .mode-btn .mode-label { display: block; }
+  .mode-btn .mode-desc { font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+  }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .prefix {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    user-select: none;
+    line-height: 1;
+    padding-left: 4px;
+  }
+
+  input[type=number] {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    background: var(--surface-2);
+    -moz-appearance: textfield;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input[type=number]:focus { border-color: var(--accent); background: var(--surface); }
+  input[type=number]::placeholder { color: var(--text-tertiary); font-weight: 400; }
+
+  .unit-tag {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+
+  .rate-row { margin-top: 16px; }
+
+  .rate-toggle {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .rate-btn {
+    flex: 1;
+    padding: 9px 0;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .rate-btn:hover { background: var(--surface); }
+  .rate-btn.active { background: var(--surface); border-color: var(--accent); color: var(--accent); }
+
+  textarea {
+    width: 100%;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent); background: var(--surface); }
+  textarea::placeholder { color: var(--text-tertiary); }
+
+  .results-card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+  }
+
+  .results-inner { padding: 24px; }
+
+  .zero-state {
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .metric {
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+
+  .metric-value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .metric-sub {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 3px;
+  }
+
+  .metric.sku { background: var(--accent-bg); }
+  .metric.sku .metric-label { color: var(--accent-sub); }
+  .metric.sku .metric-value { font-size: 28px; color: var(--accent-text); }
+  .metric.sku .metric-sub { color: var(--accent-sub); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  .chain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 8px 0 2px;
+  }
+
+  .chain-step { font-size: 12px; color: var(--text-secondary); font-family: var(--mono); }
+  .chain-val { color: var(--text-primary); }
+  .chain-arrow { font-size: 11px; color: var(--text-tertiary); }
+
+  .note-display {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    border-left: 3px solid var(--border-strong);
+  }
+
+  .note-name { font-weight: 500; color: var(--text-primary); margin-right: 6px; }
+
+  .action-row {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 10px 0;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+  .action-btn:active { transform: scale(0.98); }
+
+  .action-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .action-btn.primary:hover { opacity: 0.9; }
+  .action-btn.primary:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-primary);
+    color: var(--surface);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 100px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 8px;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo-row">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <span class="logo-text">Adobe &mdash; Corporate Sales</span>
+  </div>
+  <h1>Shared Credits <span>Calculator</span></h1>
+  <p class="subtitle" id="subtitleText">Enter a gen credit quantity to get the dollar amount and SKU quantity.</p>
+</div>
+
+<div class="mode-toggle-wrap">
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeCredits" onclick="setMode('credits')">
+      <span class="mode-label">Credits &#8594; SKU</span>
+      <span class="mode-desc">I know the credit count</span>
+    </button>
+    <button class="mode-btn" id="modeDollars" onclick="setMode('dollars')">
+      <span class="mode-label">Dollars &#8594; SKU</span>
+      <span class="mode-desc">I know the dollar amount</span>
+    </button>
+  </div>
+</div>
+
+<div class="card">
+  <div id="creditsInputSection">
+    <div class="card-label">Gen credits needed</div>
+    <div class="input-row">
+      <input type="number" id="creditInput" placeholder="e.g. 533333" min="0" step="1" oninput="calc()" />
+      <span class="unit-tag">gen credits</span>
+    </div>
+  </div>
+  <div id="dollarsInputSection" style="display:none;">
+    <div class="card-label">Dollar amount</div>
+    <div class="input-row">
+      <span class="prefix">$</span>
+      <input type="number" id="dollarInput" placeholder="e.g. 4000" min="0" step="1" oninput="calc()" />
+    </div>
+  </div>
+  <div class="rate-row">
+    <div class="card-label">SKU unit price</div>
+    <div class="rate-toggle">
+      <button class="rate-btn active" id="btn150" onclick="setRate(150)">$150 / unit</button>
+      <button class="rate-btn" id="btn125" onclick="setRate(125)">$125 / unit</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-label">Account / notes</div>
+  <textarea id="noteInput" placeholder="Account name, opportunity details, any context..." oninput="calc()"></textarea>
+</div>
+
+<div class="results-card">
+  <div class="results-inner">
+    <div class="zero-state" id="zeroState">Enter a value above to see the conversion.</div>
+
+    <div id="resultsCredits" style="display:none;">
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Operations</div>
+          <div class="metric-value" id="rOps">--</div>
+          <div class="metric-sub">credits &divide; 20</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Dollar amount</div>
+          <div class="metric-value" id="rDollars">--</div>
+          <div class="metric-sub">ops &times; $0.15</div>
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="metrics-grid">
+        <div class="metric sku">
+          <div class="metric-label">SKU quantity</div>
+          <div class="metric-value" id="rSku">--</div>
+          <div class="metric-sub">enter in pricing wizard</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Billed total</div>
+          <div class="metric-value" id="rBilled">--</div>
+          <div class="metric-sub" id="rBilledSub">at $150/unit</div>
+        </div>
+      </div>
+      <div class="chain" id="chainCredits"></div>
+      <div id="noteDisplayCredits" style="display:none;" class="note-display"></div>
+    </div>
+
+    <div id="resultsDollars" style="display:none;">
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Operations</div>
+          <div class="metric-value" id="dOps">--</div>
+          <div class="metric-sub">$ &divide; $0.15</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Gen credits</div>
+          <div class="metric-value" id="dCredits">--</div>
+          <div class="metric-sub">ops &times; 20</div>
+        </div>
+      </div>
+      <hr class="divider" />
+      <div class="metrics-grid">
+        <div class="metric sku">
+          <div class="metric-label">SKU quantity</div>
+          <div class="metric-value" id="dSku">--</div>
+          <div class="metric-sub">enter in pricing wizard</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Billed total</div>
+          <div class="metric-value" id="dBilled">--</div>
+          <div class="metric-sub" id="dBilledSub">at $150/unit</div>
+        </div>
+      </div>
+      <div class="chain" id="chainDollars"></div>
+      <div id="noteDisplayDollars" style="display:none;" class="note-display"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="action-row">
+  <button class="action-btn" onclick="resetAll()">Clear all</button>
+  <button class="action-btn primary" id="copyBtn" onclick="copySku()" disabled>Copy SKU qty</button>
+</div>
+
+<div class="footer" id="footerText">
+  Credits &divide; 20 = ops &rarr; ops &times; $0.15 = dollars &rarr; &divide; unit price (rounded up) = SKU qty
+</div>
+
+<div class="toast" id="toast">SKU quantity copied</div>
+
+<script>
+  var rate = 150;
+  var mode = 'credits';
+  var lastSku = null;
+
+  function setMode(m) {
+    mode = m;
+    document.getElementById('modeCredits').classList.toggle('active', m === 'credits');
+    document.getElementById('modeDollars').classList.toggle('active', m === 'dollars');
+    document.getElementById('creditsInputSection').style.display = m === 'credits' ? 'block' : 'none';
+    document.getElementById('dollarsInputSection').style.display = m === 'dollars' ? 'block' : 'none';
+    document.getElementById('subtitleText').textContent = m === 'credits'
+      ? 'Enter a gen credit quantity to get the dollar amount and SKU quantity.'
+      : 'Enter a dollar amount to get the gen credit count and SKU quantity.';
+    document.getElementById('footerText').innerHTML = m === 'credits'
+      ? 'Credits &divide; 20 = ops &rarr; ops &times; $0.15 = dollars &rarr; &divide; unit price (rounded up) = SKU qty'
+      : 'Dollars &divide; $0.15 = ops &rarr; ops &times; 20 = gen credits &rarr; &divide; unit price (rounded up) = SKU qty';
+    document.getElementById('zeroState').style.display = 'block';
+    document.getElementById('resultsCredits').style.display = 'none';
+    document.getElementById('resultsDollars').style.display = 'none';
+    document.getElementById('copyBtn').disabled = true;
+    lastSku = null;
+  }
+
+  function setRate(r) {
+    rate = r;
+    document.getElementById('btn150').classList.toggle('active', r === 150);
+    document.getElementById('btn125').classList.toggle('active', r === 125);
+    calc();
+  }
+
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+  function fmtd(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+  function esc(s) { return s.replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function renderNote(elId, note) {
+    var el = document.getElementById(elId);
+    if (note) {
+      el.style.display = 'block';
+      el.innerHTML = '<span class="note-name">Note:</span>' + esc(note);
+    } else {
+      el.style.display = 'none';
+    }
+  }
+
+  function calc() {
+    var note = document.getElementById('noteInput').value.trim();
+
+    if (mode === 'credits') {
+      var credits = parseFloat(document.getElementById('creditInput').value);
+      var show = credits > 0 && !isNaN(credits);
+      document.getElementById('zeroState').style.display = show ? 'none' : 'block';
+      document.getElementById('resultsCredits').style.display = show ? 'block' : 'none';
+      document.getElementById('copyBtn').disabled = !show;
+      if (!show) { lastSku = null; return; }
+
+      var ops = credits / 20;
+      var dollars = ops * 0.15;
+      var sku = Math.ceil(dollars / rate);
+      var billed = sku * rate;
+      lastSku = sku;
+
+      document.getElementById('rOps').textContent = fmt(ops);
+      document.getElementById('rDollars').textContent = fmtd(dollars);
+      document.getElementById('rSku').textContent = fmt(sku);
+      document.getElementById('rBilled').textContent = fmtd(billed);
+      document.getElementById('rBilledSub').textContent = 'at $' + rate + '/unit';
+      document.getElementById('chainCredits').innerHTML =
+        '<span class="chain-step"><span class="chain-val">' + fmt(credits) + '</span> credits</span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step"><span class="chain-val">' + fmt(ops) + '</span> ops</span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step"><span class="chain-val">' + fmtd(dollars) + '</span></span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step">SKU qty <span class="chain-val">' + fmt(sku) + '</span></span>';
+      renderNote('noteDisplayCredits', note);
+
+    } else {
+      var dollars2 = parseFloat(document.getElementById('dollarInput').value);
+      var show2 = dollars2 > 0 && !isNaN(dollars2);
+      document.getElementById('zeroState').style.display = show2 ? 'none' : 'block';
+      document.getElementById('resultsDollars').style.display = show2 ? 'block' : 'none';
+      document.getElementById('copyBtn').disabled = !show2;
+      if (!show2) { lastSku = null; return; }
+
+      var ops2 = dollars2 / 0.15;
+      var credits2 = ops2 * 20;
+      var sku2 = Math.ceil(dollars2 / rate);
+      var billed2 = sku2 * rate;
+      lastSku = sku2;
+
+      document.getElementById('dOps').textContent = fmt(ops2);
+      document.getElementById('dCredits').textContent = fmt(credits2);
+      document.getElementById('dSku').textContent = fmt(sku2);
+      document.getElementById('dBilled').textContent = fmtd(billed2);
+      document.getElementById('dBilledSub').textContent = 'at $' + rate + '/unit';
+      document.getElementById('chainDollars').innerHTML =
+        '<span class="chain-step"><span class="chain-val">' + fmtd(dollars2) + '</span></span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step"><span class="chain-val">' + fmt(ops2) + '</span> ops</span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step"><span class="chain-val">' + fmt(credits2) + '</span> credits</span>' +
+        '<span class="chain-arrow">&#8594;</span>' +
+        '<span class="chain-step">SKU qty <span class="chain-val">' + fmt(sku2) + '</span></span>';
+      renderNote('noteDisplayDollars', note);
+    }
+  }
+
+  function resetAll() {
+    document.getElementById('creditInput').value = '';
+    document.getElementById('dollarInput').value = '';
+    document.getElementById('noteInput').value = '';
+    rate = 150;
+    lastSku = null;
+    document.getElementById('btn150').classList.add('active');
+    document.getElementById('btn125').classList.remove('active');
+    document.getElementById('zeroState').style.display = 'block';
+    document.getElementById('resultsCredits').style.display = 'none';
+    document.getElementById('resultsDollars').style.display = 'none';
+    document.getElementById('copyBtn').disabled = true;
+  }
+
+  function copySku() {
+    if (lastSku === null) return;
+    navigator.clipboard.writeText(String(lastSku)).then(function() {
+      var t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
