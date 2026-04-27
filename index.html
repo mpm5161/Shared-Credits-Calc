@@ -39,307 +39,183 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #141412;
-      --surface: #1e1e1b;
-      --surface-2: #282824;
-      --border: rgba(255,255,255,0.09);
-      --border-strong: rgba(255,255,255,0.16);
-      --text-primary: #f0ede6;
-      --text-secondary: #9a9890;
-      --text-tertiary: #5a5a54;
-      --accent: #4d87e8;
-      --accent-bg: #0c2a5c;
-      --accent-text: #a8c8f8;
-      --accent-sub: #7aaaf0;
-      --green: #34d399;
-      --green-bg: #052e1c;
-      --green-sub: #6ee7b7;
-      --amber: #fbbf24;
-      --amber-bg: #2d1f00;
-      --amber-sub: #fcd34d;
-      --purple: #c084fc;
-      --purple-bg: #2e1065;
-      --purple-sub: #d8b4fe;
+      --bg: #141412; --surface: #1e1e1b; --surface-2: #282824;
+      --border: rgba(255,255,255,0.09); --border-strong: rgba(255,255,255,0.16);
+      --text-primary: #f0ede6; --text-secondary: #9a9890; --text-tertiary: #5a5a54;
+      --accent: #4d87e8; --accent-bg: #0c2a5c; --accent-text: #a8c8f8; --accent-sub: #7aaaf0;
+      --green: #34d399; --green-bg: #052e1c; --green-sub: #6ee7b7;
+      --amber: #fbbf24; --amber-bg: #2d1f00; --amber-sub: #fcd34d;
+      --purple: #c084fc; --purple-bg: #2e1065; --purple-sub: #d8b4fe;
       --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
     }
   }
 
-  html, body {
-    background: var(--bg);
-    font-family: var(--font);
-    color: var(--text-primary);
-    -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
-  }
+  html, body { background: var(--bg); font-family: var(--font); color: var(--text-primary); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 40px 20px 64px; }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 20px 64px;
-  }
-
-  .page-header { width: 100%; max-width: 680px; margin-bottom: 24px; }
-
-  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-
-  .logo-mark {
-    width: 32px; height: 32px; background: var(--accent);
-    border-radius: 8px; display: flex; align-items: center; justify-content: center;
-  }
-
-  .logo-mark svg {
-    width: 18px; height: 18px; fill: none; stroke: #fff;
-    stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-  }
-
-  .logo-text {
-    font-size: 13px; font-weight: 500; color: var(--text-secondary);
-    letter-spacing: 0.04em; text-transform: uppercase;
-  }
-
+  /* Header */
+  .page-header { width: 100%; max-width: 720px; margin-bottom: 24px; }
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .logo-mark { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .logo-mark svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .logo-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.04em; text-transform: uppercase; }
   h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.25; }
   h1 span { color: var(--text-tertiary); }
-  .subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+  .subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
 
-  /* Mode toggle */
-  .mode-toggle-wrap { width: 100%; max-width: 680px; margin-bottom: 12px; }
+  /* Tab nav */
+  .tab-nav-wrap { width: 100%; max-width: 720px; margin-bottom: 16px; }
+  .tab-nav { display: flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4px; gap: 4px; }
+  .tab-btn { flex: 1; padding: 11px 16px; font-family: var(--font); font-size: 13px; font-weight: 500; border: none; border-radius: calc(var(--radius-lg) - 4px); cursor: pointer; background: transparent; color: var(--text-secondary); transition: all 0.18s; text-align: center; line-height: 1.3; }
+  .tab-btn .tab-label { display: block; }
+  .tab-btn .tab-desc { font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+  .tab-btn.active { background: var(--surface); color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .tab-btn .tab-notice { font-size: 10px; font-weight: 500; color: var(--accent); margin-top: 3px; }
 
-  .mode-toggle {
-    display: flex; background: var(--surface-2);
-    border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 4px; gap: 4px;
-  }
-
-  .mode-btn {
-    flex: 1; padding: 10px 12px;
-    font-family: var(--font); font-size: 13px; font-weight: 500;
-    border: none; border-radius: calc(var(--radius-lg) - 4px);
-    cursor: pointer; background: transparent; color: var(--text-secondary);
-    transition: all 0.18s; text-align: center; line-height: 1.3;
-  }
-
-  .mode-btn .mode-label { display: block; }
-  .mode-btn .mode-desc { font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
-
-  .mode-btn.active {
-    background: var(--surface); color: var(--text-primary);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
+  /* Tab panels */
+  .tab-panel { display: none; width: 100%; max-width: 720px; }
+  .tab-panel.active { display: block; }
 
   /* Cards */
-  .card {
-    width: 100%; max-width: 680px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-xl); padding: 24px; margin-bottom: 12px;
-    box-shadow: var(--shadow);
-  }
+  .card { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .card-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px; }
 
-  .card-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 12px;
-  }
+  /* Mode toggle */
+  .mode-toggle { display: flex; gap: 8px; }
+  .mode-btn { flex: 1; padding: 10px 12px; font-family: var(--font); font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); border-radius: var(--radius-md); cursor: pointer; background: var(--surface-2); color: var(--text-secondary); transition: all 0.15s; text-align: center; line-height: 1.3; }
+  .mode-btn .mode-label { display: block; }
+  .mode-btn .mode-desc { font-size: 11px; font-weight: 400; opacity: 0.75; margin-top: 2px; }
+  .mode-btn.active { background: var(--surface); border-color: var(--accent); color: var(--accent); }
 
+  /* Inputs */
   .input-row { display: flex; align-items: center; gap: 10px; }
-
-  .prefix {
-    font-family: var(--mono); font-size: 28px; font-weight: 500;
-    color: var(--text-tertiary); user-select: none; padding-left: 4px;
-  }
-
-  input[type=number] {
-    flex: 1; font-family: var(--mono); font-size: 28px; font-weight: 500;
-    padding: 12px 16px; border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md); color: var(--text-primary);
-    background: var(--surface-2); -moz-appearance: textfield;
-    outline: none; transition: border-color 0.15s; width: 100%;
-  }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .prefix { font-family: var(--mono); font-size: 28px; font-weight: 500; color: var(--text-tertiary); user-select: none; padding-left: 4px; }
+  input[type=number] { flex: 1; font-family: var(--mono); font-size: 28px; font-weight: 500; padding: 12px 16px; border: 1px solid var(--border-strong); border-radius: var(--radius-md); color: var(--text-primary); background: var(--surface-2); -moz-appearance: textfield; outline: none; transition: border-color 0.15s; width: 100%; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
   input[type=number]:focus { border-color: var(--accent); background: var(--surface); }
   input[type=number]::placeholder { color: var(--text-tertiary); font-weight: 400; }
-
-  .unit-tag {
-    font-size: 12px; color: var(--text-secondary); white-space: nowrap;
-    background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: 6px; padding: 6px 10px;
-  }
-
-  textarea {
-    width: 100%; font-family: var(--font); font-size: 14px;
-    color: var(--text-primary); background: var(--surface-2);
-    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
-    padding: 12px 14px; resize: vertical; min-height: 80px;
-    line-height: 1.6; outline: none; transition: border-color 0.15s;
-  }
-
+  .unit-tag { font-size: 12px; color: var(--text-secondary); white-space: nowrap; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+  textarea { width: 100%; font-family: var(--font); font-size: 14px; color: var(--text-primary); background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 12px 14px; resize: vertical; min-height: 80px; line-height: 1.6; outline: none; transition: border-color 0.15s; }
   textarea:focus { border-color: var(--accent); background: var(--surface); }
   textarea::placeholder { color: var(--text-tertiary); }
 
-  /* Results card */
-  .results-card {
-    width: 100%; max-width: 680px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-bottom: 12px;
-  }
-
+  /* Results */
+  .results-card { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-bottom: 12px; }
   .results-inner { padding: 24px; }
+  .zero-state { padding: 40px 24px; text-align: center; color: var(--text-tertiary); font-size: 14px; line-height: 1.6; }
 
-  .zero-state {
-    padding: 40px 24px; text-align: center;
-    color: var(--text-tertiary); font-size: 14px; line-height: 1.6;
-  }
-
-  /* Band badge */
-  .band-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
-  }
-
-  .band-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--accent-bg); border: 1px solid rgba(16,89,193,0.2);
-    border-radius: 100px; padding: 6px 14px;
-    font-size: 13px; font-weight: 500; color: var(--accent-text);
-  }
-
+  .band-row { display: flex; align-items: center; margin-bottom: 16px; }
+  .band-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-bg); border: 1px solid rgba(16,89,193,0.2); border-radius: 100px; padding: 6px 14px; font-size: 13px; font-weight: 500; color: var(--accent-text); }
   .band-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
 
-  /* Chain */
-  .chain {
-    display: flex; align-items: center; gap: 6px;
-    flex-wrap: wrap; padding: 0 0 16px;
-  }
-
+  .chain { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 0 0 16px; }
   .chain-step { font-size: 11px; color: var(--text-secondary); font-family: var(--mono); }
   .chain-val { color: var(--text-primary); }
   .chain-arrow { font-size: 10px; color: var(--text-tertiary); }
 
-  /* Pricing grid — 4 columns */
-  .pricing-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
+  /* 4-col pricing grid */
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
   .price-col { background: var(--surface-2); border-radius: var(--radius-md); overflow: hidden; }
-
-  .price-col-header {
-    padding: 10px 14px 8px; font-size: 11px; font-weight: 500;
-    letter-spacing: 0.07em; text-transform: uppercase;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .price-col.list   .price-col-header { color: var(--accent-sub);  background: var(--accent-bg); }
-  .price-col.target .price-col-header { color: var(--green-sub);   background: var(--green-bg);  }
-  .price-col.floor  .price-col-header { color: var(--amber-sub);   background: var(--amber-bg);  }
-  .price-col.custom .price-col-header { color: var(--purple-sub);  background: var(--purple-bg); }
-
-  /* Custom header has an inline input */
-  .custom-header-wrap {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 10px 6px;
-    background: var(--purple-bg);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .custom-header-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--purple-sub); white-space: nowrap;
-  }
-
-  .custom-price-input {
-    width: 100%; font-family: var(--mono); font-size: 13px; font-weight: 500;
-    padding: 3px 6px; border: 1px solid rgba(124,58,237,0.3);
-    border-radius: 5px; color: var(--purple);
-    background: var(--surface); outline: none;
-    -moz-appearance: textfield; transition: border-color 0.15s;
-    flex: 1; min-width: 0;
-  }
-
-  .custom-price-input::-webkit-inner-spin-button,
-  .custom-price-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .custom-price-input:focus { border-color: var(--purple); }
-  .custom-price-input::placeholder { color: var(--text-tertiary); font-weight: 400; }
-
+  .price-col-header { padding: 10px 14px 8px; font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .price-col.list .price-col-header   { color: var(--accent-sub); background: var(--accent-bg); }
+  .price-col.target .price-col-header { color: var(--green-sub);  background: var(--green-bg);  }
+  .price-col.floor .price-col-header  { color: var(--amber-sub);  background: var(--amber-bg);  }
+  .price-col.custom .price-col-header { color: var(--purple-sub); background: var(--purple-bg); }
+  .custom-header-wrap { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--purple-bg); border-bottom: 1px solid var(--border); }
+  .custom-header-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--purple-sub); white-space: nowrap; }
+  .custom-price-input { width: 100%; font-family: var(--mono); font-size: 13px; font-weight: 500; padding: 3px 6px; border: 1px solid rgba(124,58,237,0.3); border-radius: 5px; color: var(--purple); background: var(--surface); outline: none; -moz-appearance: textfield; flex: 1; min-width: 0; }
+  .custom-price-input::-webkit-inner-spin-button, .custom-price-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .price-col-body { padding: 14px; }
-
   .price-row { margin-bottom: 12px; }
   .price-row:last-child { margin-bottom: 0; }
-
-  .price-row-label {
-    font-size: 10px; font-weight: 500; letter-spacing: 0.06em;
-    text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 3px;
-  }
-
-  .price-row-value {
-    font-family: var(--mono); font-size: 15px; font-weight: 500;
-    color: var(--text-primary); line-height: 1.2;
-  }
-
+  .price-row-label { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 3px; }
+  .price-row-value { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
   .price-row-value.big { font-size: 20px; }
   .price-row-sub { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
-
   .price-col.list   .price-row-value.big { color: var(--accent-text); }
   .price-col.target .price-row-value.big { color: var(--green); }
   .price-col.floor  .price-row-value.big { color: var(--amber); }
   .price-col.custom .price-row-value.big { color: var(--purple); }
+  .custom-empty { padding: 24px 14px; text-align: center; font-size: 12px; color: var(--text-tertiary); line-height: 1.5; }
 
-  .custom-empty {
-    padding: 24px 14px; text-align: center;
-    font-size: 12px; color: var(--text-tertiary); line-height: 1.5;
-  }
-
-  .note-display {
-    margin-top: 12px; padding: 10px 14px; background: var(--surface-2);
-    border-radius: var(--radius-md); font-size: 13px; color: var(--text-secondary);
-    line-height: 1.6; border-left: 3px solid var(--border-strong);
-  }
-
+  .note-display { margin-top: 12px; padding: 10px 14px; background: var(--surface-2); border-radius: var(--radius-md); font-size: 13px; color: var(--text-secondary); line-height: 1.6; border-left: 3px solid var(--border-strong); }
   .note-name { font-weight: 500; color: var(--text-primary); margin-right: 6px; }
 
-  /* Actions */
-  .action-row {
-    width: 100%; max-width: 680px;
-    display: flex; gap: 8px; margin-bottom: 12px;
-  }
-
-  .action-btn {
-    flex: 1; padding: 10px 0; font-family: var(--font);
-    font-size: 13px; font-weight: 500;
-    border: 1px solid var(--border-strong); border-radius: var(--radius-md);
-    cursor: pointer; background: var(--surface); color: var(--text-secondary);
-    transition: all 0.15s;
-  }
-
+  /* Action row */
+  .action-row { width: 100%; max-width: 720px; display: flex; gap: 8px; margin-bottom: 12px; }
+  .action-btn { flex: 1; padding: 10px 0; font-family: var(--font); font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); border-radius: var(--radius-md); cursor: pointer; background: var(--surface); color: var(--text-secondary); transition: all 0.15s; }
   .action-btn:hover { background: var(--surface-2); color: var(--text-primary); }
   .action-btn:active { transform: scale(0.98); }
   .action-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   .action-btn.primary:hover { opacity: 0.9; }
   .action-btn.primary:disabled { opacity: 0.4; cursor: default; transform: none; }
 
-  .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--text-primary); color: var(--surface);
-    font-size: 13px; font-weight: 500; padding: 10px 20px;
-    border-radius: 100px; opacity: 0; pointer-events: none;
-    transition: all 0.2s; white-space: nowrap;
-  }
+  /* Footer */
+  .footer { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 8px; max-width: 720px; line-height: 1.6; }
 
+  /* Toast */
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-primary); color: var(--surface); font-size: 13px; font-weight: 500; padding: 10px 20px; border-radius: 100px; opacity: 0; pointer-events: none; transition: all 0.2s; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .footer {
-    font-size: 12px; color: var(--text-tertiary);
-    text-align: center; margin-top: 8px; max-width: 680px; line-height: 1.6;
-  }
+  /* ===== TAB 2: VALUE VISUALIZER ===== */
+  .no-credits-state { padding: 40px 24px; text-align: center; }
+  .no-credits-state .icon { font-size: 32px; margin-bottom: 12px; }
+  .no-credits-state p { font-size: 14px; color: var(--text-tertiary); line-height: 1.6; }
+  .no-credits-state strong { color: var(--text-secondary); }
+
+  .pool-summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .pool-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-bg); border: 1px solid rgba(16,89,193,0.2); border-radius: 100px; padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--accent-text); }
+  .pool-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  /* User count control */
+  .user-control { display: flex; align-items: center; gap: 10px; }
+  .user-control-label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .stepper { display: flex; align-items: center; gap: 0; border: 1px solid var(--border-strong); border-radius: var(--radius-md); overflow: hidden; }
+  .stepper-btn { width: 36px; height: 36px; font-size: 18px; font-weight: 400; border: none; background: var(--surface-2); color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.1s; flex-shrink: 0; }
+  .stepper-btn:hover { background: var(--border); }
+  .stepper-val { font-family: var(--mono); font-size: 15px; font-weight: 500; padding: 0 14px; min-width: 56px; text-align: center; color: var(--text-primary); border-left: 1px solid var(--border-strong); border-right: 1px solid var(--border-strong); height: 36px; display: flex; align-items: center; justify-content: center; }
+
+  /* Video duration control */
+  .vid-control { display: flex; align-items: center; gap: 10px; }
+  .vid-control-label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+
+  /* Controls row */
+  .controls-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+
+  /* Model category */
+  .model-category { margin-bottom: 20px; }
+  .model-category-header { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .model-card { background: var(--surface-2); border-radius: var(--radius-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .model-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .model-name { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+  .model-badge { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+  .badge-native { background: var(--accent-bg); color: var(--accent-sub); }
+  .badge-partner { background: var(--purple-bg); color: var(--purple-sub); }
+  .badge-video { background: var(--amber-bg); color: var(--amber-sub); }
+  .badge-audio { background: var(--green-bg); color: var(--green-sub); }
+
+  .model-stat { display: flex; align-items: baseline; gap: 6px; }
+  .model-gen-count { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+  .model-gen-label { font-size: 12px; color: var(--text-secondary); }
+  .model-gen-sub { font-size: 11px; color: var(--text-tertiary); }
+
+  /* Pool bar */
+  .pool-bar-wrap { margin-top: 6px; }
+  .pool-bar-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .pool-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.3s; }
+  .pool-bar-fill.warn { background: var(--amber); }
+  .pool-bar-fill.danger { background: #dc2626; }
+  .pool-bar-label { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
 
   @media (max-width: 600px) {
     .pricing-grid { grid-template-columns: 1fr 1fr; }
+    .model-grid { grid-template-columns: 1fr; }
   }
-
   @media (max-width: 380px) {
     .pricing-grid { grid-template-columns: 1fr; }
   }
@@ -355,167 +231,207 @@
     <span class="logo-text">Adobe &mdash; Corporate Sales</span>
   </div>
   <h1>Shared Credits <span>Calculator</span></h1>
-  <p class="subtitle" id="subtitleText">Enter a gen credit quantity to see pricing across all volume bands.</p>
+  <p class="subtitle">Annual credit pool pricing and value visualization.</p>
 </div>
 
-<div class="mode-toggle-wrap">
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="modeCredits" onclick="setMode('credits')">
-      <span class="mode-label">Credits &#8594; SKU</span>
-      <span class="mode-desc">I know the credit count</span>
+<!-- Tab nav -->
+<div class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabBtn1" onclick="switchTab(1)">
+      <span class="tab-label">Part 1 &mdash; Annual Pricing</span>
+      <span class="tab-desc">Credits or dollars to SKU quantity</span>
     </button>
-    <button class="mode-btn" id="modeDollars" onclick="setMode('dollars')">
-      <span class="mode-label">Dollars &#8594; SKU</span>
-      <span class="mode-desc">I know the dollar amount</span>
+    <button class="tab-btn" id="tabBtn2" onclick="switchTab(2)">
+      <span class="tab-label">Part 2 &mdash; What It Gets You</span>
+      <span class="tab-desc">Generations per user per month</span>
+      <span class="tab-notice" id="tab2Notice" style="display:none;">&#9679; Credits entered in Part 1</span>
     </button>
   </div>
 </div>
 
-<div class="card">
-  <div id="creditsInputSection">
-    <div class="card-label">Gen credits needed</div>
-    <div class="input-row">
-      <input type="number" id="creditInput" placeholder="e.g. 533333" min="0" step="1" oninput="calc()" />
-      <span class="unit-tag">gen credits</span>
+<!-- ===== TAB 1 ===== -->
+<div class="tab-panel active" id="panel1">
+
+  <div class="card">
+    <div class="card-label" id="modeLabel1">Input mode</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeCredits" onclick="setMode('credits')">
+        <span class="mode-label">Credits &#8594; SKU</span>
+        <span class="mode-desc">I know the credit count</span>
+      </button>
+      <button class="mode-btn" id="modeDollars" onclick="setMode('dollars')">
+        <span class="mode-label">Dollars &#8594; SKU</span>
+        <span class="mode-desc">I know the dollar amount</span>
+      </button>
     </div>
-  </div>
-  <div id="dollarsInputSection" style="display:none;">
-    <div class="card-label">Dollar amount</div>
-    <div class="input-row">
-      <span class="prefix">$</span>
-      <input type="number" id="dollarInput" placeholder="e.g. 4000" min="0" step="1" oninput="calc()" />
-    </div>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-label">Account / notes</div>
-  <textarea id="noteInput" placeholder="Account name, opportunity details, any context..." oninput="calc()"></textarea>
-</div>
-
-<div class="results-card">
-  <div class="results-inner">
-    <div class="zero-state" id="zeroState">Enter a value above to see pricing across all tiers.</div>
-    <div id="calcResults" style="display:none;">
-
-      <div class="band-row">
-        <div class="band-badge">
-          <span class="band-dot"></span>
-          <span id="bandLabel">--</span>
+    <div style="margin-top:16px;">
+      <div id="creditsInputSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="card-label" style="margin-bottom:0;">Gen credits needed</div>
+          <select id="creditPeriod" onchange="calc()" style="font-family:var(--font);font-size:12px;font-weight:500;padding:5px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);color:var(--text-primary);outline:none;cursor:pointer;">
+            <option value="annual">Per year</option>
+            <option value="monthly">Per month &times;12</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <input type="number" id="creditInput" placeholder="e.g. 533333" min="0" step="1" oninput="calc()" />
+          <span class="unit-tag" id="creditUnitTag">gen credits / yr</span>
+        </div>
+        <div id="monthlyMultiplierNote" style="display:none;font-size:11px;color:var(--text-tertiary);margin-top:6px;font-family:var(--mono);"></div>
+      </div>
+      <div id="dollarsInputSection" style="display:none;">
+        <div class="card-label">Annual dollar amount</div>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="number" id="dollarInput" placeholder="e.g. 4000" min="0" step="1" oninput="calc()" />
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="chain" id="inputChain"></div>
+  <div class="card">
+    <div class="card-label">Account / notes</div>
+    <textarea id="noteInput" placeholder="Account name, opportunity details, any context..." oninput="calc()"></textarea>
+  </div>
 
-      <div class="pricing-grid">
+  <div class="results-card">
+    <div class="results-inner">
+      <div class="zero-state" id="zeroState1">Enter an annual or monthly credit count, or a dollar amount above.</div>
+      <div id="calcResults1" style="display:none;">
+        <div class="band-row">
+          <div class="band-badge"><span class="band-dot"></span><span id="bandLabel">--</span></div>
+        </div>
+        <div class="chain" id="inputChain"></div>
+        <div class="pricing-grid">
+          <!-- List -->
+          <div class="price-col list">
+            <div class="price-col-header">List</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="listPrice">--</div><div class="price-row-sub" id="listOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="listSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="listBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="listCredits">--</div></div>
+            </div>
+          </div>
+          <!-- Target -->
+          <div class="price-col target">
+            <div class="price-col-header">Target</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="targetPrice">--</div><div class="price-row-sub" id="targetOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="targetSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="targetBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="targetCredits">--</div></div>
+            </div>
+          </div>
+          <!-- Floor -->
+          <div class="price-col floor">
+            <div class="price-col-header">Floor</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="floorPrice">--</div><div class="price-row-sub" id="floorOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="floorSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="floorBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="floorCredits">--</div></div>
+            </div>
+          </div>
+          <!-- Custom -->
+          <div class="price-col custom">
+            <div class="custom-header-wrap">
+              <span class="custom-header-label">Custom</span>
+              <span style="font-size:11px;color:var(--purple-sub);font-weight:500;">$</span>
+              <input type="number" class="custom-price-input" id="customPriceInput" placeholder="e.g. 136" min="1" step="1" oninput="calc()" />
+            </div>
+            <div class="price-col-body" id="customBody">
+              <div class="custom-empty">Enter a unit price to see custom tier results.</div>
+            </div>
+          </div>
+        </div>
+        <div id="noteDisplay1" style="display:none;" class="note-display"></div>
+      </div>
+    </div>
+  </div>
 
-        <!-- List -->
-        <div class="price-col list">
-          <div class="price-col-header">List</div>
-          <div class="price-col-body">
-            <div class="price-row">
-              <div class="price-row-label">Unit price</div>
-              <div class="price-row-value big" id="listPrice">--</div>
-              <div class="price-row-sub" id="listOpRate">--</div>
+  <div class="action-row">
+    <button class="action-btn" onclick="resetAll()">Clear all</button>
+    <button class="action-btn primary" id="copyBtn" onclick="copySku()" disabled>Copy List SKU qty</button>
+  </div>
+
+  <div class="footer">
+    Volume bands: 1&ndash;1,000 &bull; 1,001&ndash;2,500 &bull; 2,501&ndash;5,000 &bull; 5,001&ndash;10,000 units &bull; 1 unit = 1,000 ops &bull; op rate = unit price &divide; 1,000
+  </div>
+
+</div><!-- /panel1 -->
+
+<!-- ===== TAB 2 ===== -->
+<div class="tab-panel" id="panel2">
+
+  <div class="results-card">
+    <div class="results-inner">
+
+      <!-- No credits state -->
+      <div id="noCreditsState" class="no-credits-state">
+        <div class="icon">&#9654;</div>
+        <p>Enter your annual credit pool in <strong>Part 1</strong> first, then come back here to see what those credits get your team.</p>
+      </div>
+
+      <!-- Value content -->
+      <div id="valueContent" style="display:none;">
+
+        <div class="pool-summary">
+          <div class="pool-pill"><span class="pool-dot"></span><span id="poolLabel">-- annual credits</span></div>
+          <div class="controls-row" style="margin-bottom:0;">
+            <div class="user-control">
+              <span class="user-control-label">Users:</span>
+              <div class="stepper">
+                <button class="stepper-btn" onclick="adjustUsers(-10)">&#8722;</button>
+                <span class="stepper-val" id="userCount">50</span>
+                <button class="stepper-btn" onclick="adjustUsers(10)">+</button>
+              </div>
             </div>
-            <div class="price-row">
-              <div class="price-row-label">SKU qty</div>
-              <div class="price-row-value" id="listSku">--</div>
-              <div class="price-row-sub">units</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Billed total</div>
-              <div class="price-row-value" id="listBilled">--</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Gen credits</div>
-              <div class="price-row-value" id="listCredits">--</div>
+            <div class="vid-control">
+              <span class="vid-control-label">Video secs:</span>
+              <div class="stepper">
+                <button class="stepper-btn" onclick="adjustVidSecs(-5)">&#8722;</button>
+                <span class="stepper-val" id="vidSecs">30</span>
+                <button class="stepper-btn" onclick="adjustVidSecs(5)">+</button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Target -->
-        <div class="price-col target">
-          <div class="price-col-header">Target</div>
-          <div class="price-col-body">
-            <div class="price-row">
-              <div class="price-row-label">Unit price</div>
-              <div class="price-row-value big" id="targetPrice">--</div>
-              <div class="price-row-sub" id="targetOpRate">--</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">SKU qty</div>
-              <div class="price-row-value" id="targetSku">--</div>
-              <div class="price-row-sub">units</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Billed total</div>
-              <div class="price-row-value" id="targetBilled">--</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Gen credits</div>
-              <div class="price-row-value" id="targetCredits">--</div>
-            </div>
-          </div>
+        <div class="model-category">
+          <div class="model-category-header">&#9733; Firefly Native Models</div>
+          <div class="model-grid" id="nativeGrid"></div>
         </div>
 
-        <!-- Floor -->
-        <div class="price-col floor">
-          <div class="price-col-header">Floor</div>
-          <div class="price-col-body">
-            <div class="price-row">
-              <div class="price-row-label">Unit price</div>
-              <div class="price-row-value big" id="floorPrice">--</div>
-              <div class="price-row-sub" id="floorOpRate">--</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">SKU qty</div>
-              <div class="price-row-value" id="floorSku">--</div>
-              <div class="price-row-sub">units</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Billed total</div>
-              <div class="price-row-value" id="floorBilled">--</div>
-            </div>
-            <div class="price-row">
-              <div class="price-row-label">Gen credits</div>
-              <div class="price-row-value" id="floorCredits">--</div>
-            </div>
-          </div>
+        <div class="model-category">
+          <div class="model-category-header">&#9670; Partner Image Models</div>
+          <div class="model-grid" id="partnerImageGrid"></div>
         </div>
 
-        <!-- Custom -->
-        <div class="price-col custom">
-          <div class="custom-header-wrap">
-            <span class="custom-header-label">Custom</span>
-            <span style="font-size:11px;color:var(--purple-sub);font-weight:500;">$</span>
-            <input type="number" class="custom-price-input" id="customPriceInput"
-              placeholder="e.g. 136" min="1" step="1" oninput="calc()" />
-          </div>
-          <div class="price-col-body" id="customBody">
-            <div class="custom-empty">Enter a unit price to see custom tier results.</div>
-          </div>
+        <div class="model-category">
+          <div class="model-category-header">&#9654; Partner Video Models <span style="font-size:10px;font-weight:400;opacity:0.7;">— per <span id="vidSecsLabel">30</span>-sec generation</span></div>
+          <div class="model-grid" id="partnerVideoGrid"></div>
+        </div>
+
+        <div class="model-category" style="margin-bottom:0;">
+          <div class="model-category-header">&#9834; Audio</div>
+          <div class="model-grid" id="audioGrid"></div>
         </div>
 
       </div>
-
-      <div id="noteDisplay" style="display:none;" class="note-display"></div>
     </div>
   </div>
-</div>
 
-<div class="action-row">
-  <button class="action-btn" onclick="resetAll()">Clear all</button>
-  <button class="action-btn primary" id="copyBtn" onclick="copySku()" disabled>Copy List SKU qty</button>
-</div>
+  <div class="footer" style="margin-top:4px;">
+    Credits per generation sourced from Adobe helpx. Video credits calculated at <span id="footerVidSecs">30</span> seconds per generation. All figures are annual pool estimates.
+  </div>
 
-<div class="footer">
-  Volume bands: 1&ndash;1,000 &bull; 1,001&ndash;2,500 &bull; 2,501&ndash;5,000 &bull; 5,001&ndash;10,000 units &bull; 1 unit = 1,000 ops &bull; op rate = unit price &divide; 1,000
-</div>
+</div><!-- /panel2 -->
 
 <div class="toast" id="toast">List SKU qty copied</div>
 
 <script>
+  // ===== BANDS =====
   var BANDS = [
     { label: '1 – 1,000 units',      min: 1,    max: 1000,  list: 150, target: 125, floor: 100 },
     { label: '1,001 – 2,500 units',  min: 1001, max: 2500,  list: 135, target: 113, floor: 90  },
@@ -523,175 +439,245 @@
     { label: '5,001 – 10,000 units', min: 5001, max: 10000, list: 105, target: 88,  floor: 70  }
   ];
 
+  // ===== MODELS =====
+  // creditsPerGen: for image/audio = fixed; for video = credits per SECOND (multiply by vidSecs)
+  var MODELS = {
+    native: [
+      { name: 'Firefly Image 5',       badge: 'native',  creditsPerGen: 10,  type: 'image', unit: 'image' },
+      { name: 'Firefly Image 4 Ultra', badge: 'native',  creditsPerGen: 20,  type: 'image', unit: 'image' }
+    ],
+    partnerImage: [
+      { name: 'Gemini 2.5 Flash',      badge: 'partner', creditsPerGen: 10,  type: 'image', unit: 'image' },
+      { name: 'GPT Image 1.5',         badge: 'partner', creditsPerGen: 20,  type: 'image', unit: 'image' },
+      { name: 'GPT Image 2 (med res)', badge: 'partner', creditsPerGen: 10,  type: 'image', unit: 'image' },
+      { name: 'FLUX.2',                badge: 'partner', creditsPerGen: 20,  type: 'image', unit: 'image' }
+    ],
+    partnerVideo: [
+      { name: 'Runway Gen-4.5',        badge: 'video',   creditsPerSec: 35,  type: 'video', unit: 'video' },
+      { name: 'Luma Ray3 720p',        badge: 'video',   creditsPerSec: 100, type: 'video', unit: 'video' },
+      { name: 'Kling 3.0 1080p+audio', badge: 'video',   creditsPerSec: 35,  type: 'video', unit: 'video' },
+      { name: 'Veo 3.1 720p',          badge: 'video',   creditsPerSec: 50,  type: 'video', unit: 'video' }
+    ],
+    audio: [
+      { name: 'ElevenLabs Speech',     badge: 'audio',   creditsPerGen: 15,  type: 'audio', unit: 'per 1k chars', note: '15 cr / 1,000 chars' }
+    ]
+  };
+
+  // ===== STATE =====
   var mode = 'credits';
   var lastListSku = null;
+  var annualCredits = 0;
+  var users = 50;
+  var vidSecs = 30;
 
+  // ===== HELPERS =====
   function getBand(qty) {
-    for (var i = 0; i < BANDS.length; i++) {
-      if (qty >= BANDS[i].min && qty <= BANDS[i].max) return BANDS[i];
-    }
+    for (var i = 0; i < BANDS.length; i++) { if (qty >= BANDS[i].min && qty <= BANDS[i].max) return BANDS[i]; }
     return BANDS[BANDS.length - 1];
   }
-
-  function skuFromCredits(credits) {
-    // credits / 20 = ops; ops / 1000 = units
-    return Math.ceil(credits / 20000);
-  }
-
-  function skuFromDollars(dollars, unitPrice) {
-    return Math.ceil(dollars / unitPrice);
-  }
-
-  function creditsFromSku(sku) {
-    // 1 unit = 1000 ops; 1 op = 20 gen credits
-    return sku * 1000 * 20;
-  }
-
-  function resolveFromCredits(credits) {
-    var sku = skuFromCredits(credits);
-    var band = getBand(sku);
-    return { band: band, sku: sku };
-  }
-
+  function skuFromCredits(credits) { return Math.ceil(credits / 20000); }
+  function skuFromDollars(dollars, unitPrice) { return Math.ceil(dollars / unitPrice); }
+  function creditsFromSku(sku) { return sku * 20000; }
+  function resolveFromCredits(credits) { var sku = skuFromCredits(credits); return { band: getBand(sku), sku: sku }; }
   function resolveFromDollars(dollars) {
-    // iterate to resolve band/price interdependency
     var sku = Math.ceil(dollars / BANDS[0].list);
-    for (var i = 0; i < 4; i++) {
-      var band = getBand(sku);
-      sku = Math.ceil(dollars / band.list);
-    }
-    var band = getBand(sku);
-    return { band: band, sku: sku };
+    for (var i = 0; i < 4; i++) { var band = getBand(sku); sku = Math.ceil(dollars / band.list); }
+    return { band: getBand(sku), sku: sku };
   }
-
   function fmt(n)  { return Math.round(n).toLocaleString('en-US'); }
   function fmtd(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
-  function fmtRate(p) { return '$' + (p / 1000).toFixed(3) + ' / op'; }
+  function fmtRate(p) { return '$' + (p/1000).toFixed(3) + ' / op'; }
   function esc(s)  { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  // ===== PART 1 CALC =====
   function renderStandardCol(prefix, unitPrice, inputCredits, inputDollars) {
-    var sku = inputCredits !== null
-      ? skuFromCredits(inputCredits)
-      : skuFromDollars(inputDollars, unitPrice);
+    var sku = inputCredits !== null ? skuFromCredits(inputCredits) : skuFromDollars(inputDollars, unitPrice);
     var billed = sku * unitPrice;
     var credits = creditsFromSku(sku);
-
-    document.getElementById(prefix + 'Price').textContent   = '$' + unitPrice;
-    document.getElementById(prefix + 'OpRate').textContent  = fmtRate(unitPrice);
-    document.getElementById(prefix + 'Sku').textContent     = fmt(sku);
-    document.getElementById(prefix + 'Billed').textContent  = fmtd(billed);
-    document.getElementById(prefix + 'Credits').textContent = fmt(credits);
+    document.getElementById(prefix+'Price').textContent   = '$'+unitPrice;
+    document.getElementById(prefix+'OpRate').textContent  = fmtRate(unitPrice);
+    document.getElementById(prefix+'Sku').textContent     = fmt(sku);
+    document.getElementById(prefix+'Billed').textContent  = fmtd(billed);
+    document.getElementById(prefix+'Credits').textContent = fmt(credits);
     return sku;
   }
 
   function renderCustomCol(customPrice, inputCredits, inputDollars) {
     var bodyEl = document.getElementById('customBody');
-    if (!customPrice || customPrice <= 0) {
-      bodyEl.innerHTML = '<div class="custom-empty">Enter a unit price to see custom tier results.</div>';
-      return;
-    }
-
-    var sku = inputCredits !== null
-      ? skuFromCredits(inputCredits)
-      : skuFromDollars(inputDollars, customPrice);
-    var billed  = sku * customPrice;
-    var credits = creditsFromSku(sku);
-    var opRate  = fmtRate(customPrice);
-
-    // Check which band this qty falls in for reference
+    if (!customPrice || customPrice <= 0) { bodyEl.innerHTML = '<div class="custom-empty">Enter a unit price to see custom tier results.</div>'; return; }
+    var sku = inputCredits !== null ? skuFromCredits(inputCredits) : skuFromDollars(inputDollars, customPrice);
+    var billed = sku * customPrice; var credits = creditsFromSku(sku);
     var band = getBand(sku);
-    var bandNote = 'Band: ' + band.label;
-
     bodyEl.innerHTML =
-      '<div class="price-row">' +
-        '<div class="price-row-label">Unit price</div>' +
-        '<div class="price-row-value big" style="color:var(--purple);">$' + customPrice + '</div>' +
-        '<div class="price-row-sub">' + opRate + '</div>' +
-      '</div>' +
-      '<div class="price-row">' +
-        '<div class="price-row-label">SKU qty</div>' +
-        '<div class="price-row-value">' + fmt(sku) + '</div>' +
-        '<div class="price-row-sub">units</div>' +
-      '</div>' +
-      '<div class="price-row">' +
-        '<div class="price-row-label">Billed total</div>' +
-        '<div class="price-row-value">' + fmtd(billed) + '</div>' +
-      '</div>' +
-      '<div class="price-row">' +
-        '<div class="price-row-label">Gen credits</div>' +
-        '<div class="price-row-value">' + fmt(credits) + '</div>' +
-        '<div class="price-row-sub">' + bandNote + '</div>' +
-      '</div>';
+      '<div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" style="color:var(--purple);">$'+customPrice+'</div><div class="price-row-sub">'+fmtRate(customPrice)+'</div></div>'+
+      '<div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value">'+fmt(sku)+'</div><div class="price-row-sub">units</div></div>'+
+      '<div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value">'+fmtd(billed)+'</div></div>'+
+      '<div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value">'+fmt(credits)+'</div><div class="price-row-sub">Band: '+band.label+'</div></div>';
   }
 
   function calc() {
     var note = document.getElementById('noteInput').value.trim();
     var customPrice = parseFloat(document.getElementById('customPriceInput').value) || null;
-    var show = false;
-    var inputCredits = null;
-    var inputDollars = null;
-    var resolved = null;
+    var show = false; var inputCredits = null; var inputDollars = null; var resolved = null;
 
     if (mode === 'credits') {
       var v = parseFloat(document.getElementById('creditInput').value);
-      if (v > 0 && !isNaN(v)) { inputCredits = v; resolved = resolveFromCredits(v); show = true; }
+      var period = document.getElementById('creditPeriod').value;
+      var isMonthly = period === 'monthly';
+      // Update unit tag and note
+      document.getElementById('creditUnitTag').textContent = isMonthly ? 'gen credits / mo' : 'gen credits / yr';
+      var noteEl = document.getElementById('monthlyMultiplierNote');
+      if (v > 0 && !isNaN(v) && isMonthly) {
+        noteEl.style.display = 'block';
+        noteEl.textContent = fmt(v) + ' \u00d7 12 = ' + fmt(v * 12) + ' annual credits';
+      } else {
+        noteEl.style.display = 'none';
+      }
+      if (v > 0 && !isNaN(v)) {
+        inputCredits = isMonthly ? v * 12 : v;
+        resolved = resolveFromCredits(inputCredits);
+        show = true;
+      }
     } else {
       var v = parseFloat(document.getElementById('dollarInput').value);
       if (v > 0 && !isNaN(v)) { inputDollars = v; resolved = resolveFromDollars(v); show = true; }
     }
 
-    document.getElementById('zeroState').style.display    = show ? 'none'  : 'block';
-    document.getElementById('calcResults').style.display  = show ? 'block' : 'none';
+    document.getElementById('zeroState1').style.display   = show ? 'none'  : 'block';
+    document.getElementById('calcResults1').style.display = show ? 'block' : 'none';
     document.getElementById('copyBtn').disabled           = !show;
 
+    // Update tab 2 notice
+    document.getElementById('tab2Notice').style.display = show ? 'inline' : 'none';
+
     if (!show) {
-      lastListSku = null;
+      lastListSku = null; annualCredits = 0;
       renderCustomCol(customPrice, null, null);
+      renderValueTab();
       return;
     }
 
     var band = resolved.band;
-
-    // Band label
     document.getElementById('bandLabel').textContent = band.label;
 
-    // Input chain
     var chainEl = document.getElementById('inputChain');
     if (inputCredits !== null) {
       var ops = inputCredits / 20;
+      var period = document.getElementById('creditPeriod').value;
+      var isMonthly = period === 'monthly';
+      var rawVal = parseFloat(document.getElementById('creditInput').value);
+      var creditLabel = isMonthly
+        ? fmt(rawVal) + '/mo &times;12 = <span class="chain-val">' + fmt(inputCredits) + '</span> annual credits'
+        : '<span class="chain-val">' + fmt(inputCredits) + '</span> annual credits';
       chainEl.innerHTML =
-        '<span class="chain-step"><span class="chain-val">' + fmt(inputCredits) + '</span> credits</span>' +
-        '<span class="chain-arrow">&#8594;</span>' +
-        '<span class="chain-step"><span class="chain-val">' + fmt(ops) + '</span> ops</span>' +
-        '<span class="chain-arrow">&#8594;</span>' +
-        '<span class="chain-step"><span class="chain-val">' + fmt(resolved.sku) + '</span> units @ List</span>';
+        '<span class="chain-step">'+creditLabel+'</span>'+
+        '<span class="chain-arrow">&#8594;</span>'+
+        '<span class="chain-step"><span class="chain-val">'+fmt(ops)+'</span> ops</span>'+
+        '<span class="chain-arrow">&#8594;</span>'+
+        '<span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+      annualCredits = inputCredits;
     } else {
       var listOps = inputDollars / (band.list / 1000);
       chainEl.innerHTML =
-        '<span class="chain-step"><span class="chain-val">' + fmtd(inputDollars) + '</span></span>' +
-        '<span class="chain-arrow">&#8594;</span>' +
-        '<span class="chain-step"><span class="chain-val">' + fmt(listOps) + '</span> ops</span>' +
-        '<span class="chain-arrow">&#8594;</span>' +
-        '<span class="chain-step"><span class="chain-val">' + fmt(resolved.sku) + '</span> units @ List</span>';
+        '<span class="chain-step"><span class="chain-val">'+fmtd(inputDollars)+'</span></span>'+
+        '<span class="chain-arrow">&#8594;</span>'+
+        '<span class="chain-step"><span class="chain-val">'+fmt(listOps)+'</span> ops</span>'+
+        '<span class="chain-arrow">&#8594;</span>'+
+        '<span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+      // Derive credits from List sku
+      annualCredits = creditsFromSku(resolved.sku);
     }
 
-    // Standard columns
     var listSku = renderStandardCol('list',   band.list,   inputCredits, inputDollars);
     renderStandardCol('target', band.target, inputCredits, inputDollars);
     renderStandardCol('floor',  band.floor,  inputCredits, inputDollars);
     lastListSku = listSku;
 
-    // Custom column
     renderCustomCol(customPrice, inputCredits, inputDollars);
 
-    // Note
-    var noteEl = document.getElementById('noteDisplay');
-    if (note) {
-      noteEl.style.display = 'block';
-      noteEl.innerHTML = '<span class="note-name">Note:</span>' + esc(note);
-    } else {
-      noteEl.style.display = 'none';
-    }
+    var noteEl = document.getElementById('noteDisplay1');
+    if (note) { noteEl.style.display='block'; noteEl.innerHTML='<span class="note-name">Note:</span>'+esc(note); }
+    else { noteEl.style.display='none'; }
+
+    // Update part 2
+    renderValueTab();
+  }
+
+  // ===== PART 2 RENDER =====
+  function renderValueTab() {
+    var hasCredits = annualCredits > 0;
+    document.getElementById('noCreditsState').style.display = hasCredits ? 'none'  : 'block';
+    document.getElementById('valueContent').style.display   = hasCredits ? 'block' : 'none';
+    if (!hasCredits) return;
+
+    document.getElementById('poolLabel').textContent = fmt(annualCredits) + ' annual credits';
+    document.getElementById('userCount').textContent = users;
+    document.getElementById('vidSecs').textContent   = vidSecs;
+    document.getElementById('vidSecsLabel').textContent = vidSecs;
+    document.getElementById('footerVidSecs').textContent = vidSecs;
+
+    var creditsPerUserPerMonth = annualCredits / users / 12;
+
+    renderModelGrid('nativeGrid',       MODELS.native,       creditsPerUserPerMonth);
+    renderModelGrid('partnerImageGrid', MODELS.partnerImage, creditsPerUserPerMonth);
+    renderModelGrid('partnerVideoGrid', MODELS.partnerVideo, creditsPerUserPerMonth);
+    renderModelGrid('audioGrid',        MODELS.audio,        creditsPerUserPerMonth);
+  }
+
+  function renderModelGrid(gridId, models, creditsPerUserPerMonth) {
+    var el = document.getElementById(gridId);
+    el.innerHTML = '';
+    models.forEach(function(m) {
+      var creditsPerGen = m.type === 'video' ? m.creditsPerSec * vidSecs : m.creditsPerGen;
+      var gensPerMonth  = creditsPerUserPerMonth / creditsPerGen;
+      var totalPerMonth = gensPerMonth * users;
+      var pct = Math.min(100, (creditsPerGen / creditsPerUserPerMonth) * 100);
+      var barClass = pct > 80 ? 'danger' : pct > 50 ? 'warn' : '';
+
+      var badgeClass = 'badge-' + m.badge;
+      var badgeLabel = m.badge === 'native' ? 'Firefly' : m.badge === 'partner' ? 'Partner' : m.badge === 'video' ? 'Video' : 'Audio';
+
+      var unitLabel = m.type === 'video' ? vidSecs+'-sec videos / user / mo' : m.type === 'audio' ? '1k-char blocks / user / mo' : 'images / user / mo';
+      var costNote  = m.type === 'video' ? (m.creditsPerSec * vidSecs)+' cr ('+m.creditsPerSec+' cr/sec &times; '+vidSecs+'s)' : (creditsPerGen)+' cr / gen';
+
+      var html =
+        '<div class="model-card">'+
+          '<div class="model-card-top">'+
+            '<span class="model-name">'+m.name+'</span>'+
+            '<span class="model-badge '+badgeClass+'">'+badgeLabel+'</span>'+
+          '</div>'+
+          '<div class="model-stat">'+
+            '<span class="model-gen-count">'+formatGens(gensPerMonth)+'</span>'+
+            '<span class="model-gen-label">'+unitLabel+'</span>'+
+          '</div>'+
+          '<div class="model-gen-sub">'+fmt(totalPerMonth)+' total / mo across '+users+' users</div>'+
+          '<div class="pool-bar-wrap">'+
+            '<div class="pool-bar-track"><div class="pool-bar-fill '+barClass+'" style="width:'+pct+'%"></div></div>'+
+            '<div class="pool-bar-label">'+costNote+' per generation</div>'+
+          '</div>'+
+        '</div>';
+      el.innerHTML += html;
+    });
+  }
+
+  function formatGens(n) {
+    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'k';
+    if (n >= 10) return Math.round(n).toLocaleString('en-US');
+    if (n >= 1) return n.toFixed(1);
+    return n.toFixed(2);
+  }
+
+  // ===== CONTROLS =====
+  function adjustUsers(delta) {
+    users = Math.max(1, users + delta);
+    document.getElementById('userCount').textContent = users;
+    renderValueTab();
+  }
+
+  function adjustVidSecs(delta) {
+    vidSecs = Math.max(5, vidSecs + delta);
+    document.getElementById('vidSecs').textContent = vidSecs;
+    renderValueTab();
   }
 
   function setMode(m) {
@@ -700,13 +686,19 @@
     document.getElementById('modeDollars').classList.toggle('active', m === 'dollars');
     document.getElementById('creditsInputSection').style.display = m === 'credits' ? 'block' : 'none';
     document.getElementById('dollarsInputSection').style.display = m === 'dollars' ? 'block' : 'none';
-    document.getElementById('subtitleText').textContent = m === 'credits'
-      ? 'Enter a gen credit quantity to see pricing across all volume bands.'
-      : 'Enter a dollar amount to see pricing across all volume bands.';
-    document.getElementById('zeroState').style.display   = 'block';
-    document.getElementById('calcResults').style.display = 'none';
-    document.getElementById('copyBtn').disabled          = true;
-    lastListSku = null;
+    document.getElementById('zeroState1').style.display   = 'block';
+    document.getElementById('calcResults1').style.display = 'none';
+    document.getElementById('copyBtn').disabled           = true;
+    lastListSku = null; annualCredits = 0;
+    renderValueTab();
+  }
+
+  function switchTab(n) {
+    document.getElementById('panel1').classList.toggle('active', n === 1);
+    document.getElementById('panel2').classList.toggle('active', n === 2);
+    document.getElementById('tabBtn1').classList.toggle('active', n === 1);
+    document.getElementById('tabBtn2').classList.toggle('active', n === 2);
+    if (n === 2) renderValueTab();
   }
 
   function resetAll() {
@@ -714,10 +706,15 @@
     document.getElementById('dollarInput').value      = '';
     document.getElementById('noteInput').value        = '';
     document.getElementById('customPriceInput').value = '';
-    lastListSku = null;
-    document.getElementById('zeroState').style.display   = 'block';
-    document.getElementById('calcResults').style.display = 'none';
-    document.getElementById('copyBtn').disabled          = true;
+    document.getElementById('creditPeriod').value     = 'annual';
+    document.getElementById('creditUnitTag').textContent = 'gen credits / yr';
+    document.getElementById('monthlyMultiplierNote').style.display = 'none';
+    lastListSku = null; annualCredits = 0;
+    document.getElementById('zeroState1').style.display   = 'block';
+    document.getElementById('calcResults1').style.display = 'none';
+    document.getElementById('copyBtn').disabled           = true;
+    document.getElementById('tab2Notice').style.display   = 'none';
+    renderValueTab();
   }
 
   function copySku() {
@@ -728,6 +725,9 @@
       setTimeout(function() { t.classList.remove('show'); }, 2000);
     });
   }
+
+  // Init
+  renderValueTab();
 </script>
 </body>
 </html>
