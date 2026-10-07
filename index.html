@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shared Credits Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#f5f4f1; --surface:#fff; --surface-2:#f0efe9;
+    --border:rgba(0,0,0,.10); --border-strong:rgba(0,0,0,.18);
+    --text-primary:#1a1a18; --text-secondary:#6b6b66; --text-tertiary:#a0a09a;
+    --accent:#1059c1; --accent-bg:#e8f0fb; --accent-text:#0a3d8f; --accent-sub:#2563c4;
+    --green:#0a7c4a; --green-bg:#e6f4ee; --green-sub:#1a9e60;
+    --amber:#7a4f00; --amber-bg:#fef3e0; --amber-sub:#a06800;
+    --purple:#6b21a8; --purple-bg:#f3e8ff; --purple-sub:#7c3aed;
+    --red:#b91c1c; --red-bg:#fef2f2; --red-sub:#dc2626;
+    --teal:#0e7490; --teal-bg:#ecfeff; --teal-sub:#0891b2;
+    --radius-md:8px; --radius-lg:14px; --radius-xl:20px;
+    --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+    --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
+    --mono:'SF Mono','Consolas','Menlo',monospace;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#141412; --surface:#1e1e1b; --surface-2:#282824;
+      --border:rgba(255,255,255,.09); --border-strong:rgba(255,255,255,.16);
+      --text-primary:#f0ede6; --text-secondary:#9a9890; --text-tertiary:#5a5a54;
+      --accent:#4d87e8; --accent-bg:#0c2a5c; --accent-text:#a8c8f8; --accent-sub:#7aaaf0;
+      --green:#34d399; --green-bg:#052e1c; --green-sub:#6ee7b7;
+      --amber:#fbbf24; --amber-bg:#2d1f00; --amber-sub:#fcd34d;
+      --purple:#c084fc; --purple-bg:#2e1065; --purple-sub:#d8b4fe;
+      --red:#f87171; --red-bg:#450a0a; --red-sub:#fca5a5;
+      --teal:#67e8f9; --teal-bg:#083344; --teal-sub:#22d3ee;
+      --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+    }
+  }
+  html,body{background:var(--bg);font-family:var(--font);color:var(--text-primary);-webkit-font-smoothing:antialiased;min-height:100vh;}
+  body{display:flex;flex-direction:column;align-items:center;padding:40px 20px 64px;}
+
+  /* ---- Layout ---- */
+  .page-header{width:100%;max-width:760px;margin-bottom:24px;}
+  .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .logo-mark{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .logo-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .logo-text{font-size:13px;font-weight:500;color:var(--text-secondary);letter-spacing:.04em;text-transform:uppercase;}
+  h1{font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.25;}
+  h1 span{color:var(--text-tertiary);}
+  .subtitle{font-size:14px;color:var(--text-secondary);margin-top:5px;line-height:1.5;}
+
+  /* ---- Main tabs ---- */
+  .tab-nav-wrap{width:100%;max-width:760px;margin-bottom:16px;}
+  .tab-nav{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:4px;gap:4px;}
+  .tab-btn{flex:1;padding:11px 16px;font-family:var(--font);font-size:13px;font-weight:500;border:none;border-radius:calc(var(--radius-lg) - 4px);cursor:pointer;background:transparent;color:var(--text-secondary);transition:all .18s;text-align:center;line-height:1.3;}
+  .tab-btn .tlabel{display:block;}
+  .tab-btn .tdesc{font-size:11px;font-weight:400;opacity:.75;margin-top:2px;}
+  .tab-btn .tnotice{font-size:10px;font-weight:500;color:var(--accent);margin-top:3px;}
+  .tab-btn.active{background:var(--surface);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+  .tab-panel{display:none;width:100%;max-width:760px;}
+  .tab-panel.active{display:block;}
+
+  /* ---- Cards ---- */
+  .card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .card-label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:12px;}
+  .results-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);margin-bottom:12px;}
+  .results-inner{padding:24px;}
+  .zero-state{padding:40px 24px;text-align:center;color:var(--text-tertiary);font-size:14px;line-height:1.6;}
+
+  /* ---- Mode toggle ---- */
+  .mode-toggle{display:flex;gap:8px;}
+  .mode-btn{flex:1;padding:10px 12px;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-strong);border-radius:var(--radius-md);cursor:pointer;background:var(--surface-2);color:var(--text-secondary);transition:all .15s;text-align:center;line-height:1.3;}
+  .mode-btn .mode-label{display:block;}
+  .mode-btn .mode-desc{font-size:11px;font-weight:400;opacity:.75;margin-top:2px;}
+  .mode-btn.active{background:var(--surface);border-color:var(--accent);color:var(--accent);}
+
+  /* ---- Inputs ---- */
+  .input-row{display:flex;align-items:center;gap:10px;}
+  .prefix{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--text-tertiary);user-select:none;padding-left:4px;}
+  input[type=number]{flex:1;font-family:var(--mono);font-size:28px;font-weight:500;padding:12px 16px;border:1px solid var(--border-strong);border-radius:var(--radius-md);color:var(--text-primary);background:var(--surface-2);-moz-appearance:textfield;outline:none;transition:border-color .15s;width:100%;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  input[type=number]:focus{border-color:var(--accent);background:var(--surface);}
+  input[type=number]::placeholder{color:var(--text-tertiary);font-weight:400;}
+  .unit-tag{font-size:12px;color:var(--text-secondary);white-space:nowrap;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;}
+  textarea{width:100%;font-family:var(--font);font-size:14px;color:var(--text-primary);background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--radius-md);padding:12px 14px;resize:vertical;min-height:80px;line-height:1.6;outline:none;transition:border-color .15s;}
+  textarea:focus{border-color:var(--accent);background:var(--surface);}
+  textarea::placeholder{color:var(--text-tertiary);}
+
+  /* ---- Pricing grid ---- */
+  .band-row{display:flex;align-items:center;margin-bottom:16px;}
+  .band-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);border:1px solid rgba(16,89,193,.2);border-radius:100px;padding:6px 14px;font-size:13px;font-weight:500;color:var(--accent-text);}
+  .band-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  .chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 0 16px;}
+  .chain-step{font-size:11px;color:var(--text-secondary);font-family:var(--mono);}
+  .chain-val{color:var(--text-primary);}
+  .chain-arrow{font-size:10px;color:var(--text-tertiary);}
+  .pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+  .price-col{background:var(--surface-2);border-radius:var(--radius-md);overflow:hidden;}
+  .price-col-header{padding:10px 14px 8px;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .price-col.list .price-col-header{color:var(--accent-sub);background:var(--accent-bg);}
+  .price-col.target .price-col-header{color:var(--green-sub);background:var(--green-bg);}
+  .price-col.floor .price-col-header{color:var(--amber-sub);background:var(--amber-bg);}
+  .price-col.custom .price-col-header{color:var(--purple-sub);background:var(--purple-bg);}
+  .custom-header-wrap{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--purple-bg);border-bottom:1px solid var(--border);}
+  .custom-header-label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--purple-sub);white-space:nowrap;}
+  .custom-price-input{width:100%;font-family:var(--mono);font-size:13px;font-weight:500;padding:3px 6px;border:1px solid rgba(124,58,237,.3);border-radius:5px;color:var(--purple);background:var(--surface);outline:none;-moz-appearance:textfield;flex:1;min-width:0;}
+  .custom-price-input::-webkit-inner-spin-button,.custom-price-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .price-col-body{padding:14px;}
+  .price-row{margin-bottom:12px;}
+  .price-row:last-child{margin-bottom:0;}
+  .price-row-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:3px;}
+  .price-row-value{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--text-primary);line-height:1.2;}
+  .price-row-value.big{font-size:20px;}
+  .price-row-sub{font-size:10px;color:var(--text-tertiary);margin-top:2px;}
+  .price-col.list .price-row-value.big{color:var(--accent-text);}
+  .price-col.target .price-row-value.big{color:var(--green);}
+  .price-col.floor .price-row-value.big{color:var(--amber);}
+  .price-col.custom .price-row-value.big{color:var(--purple);}
+  .custom-empty{padding:24px 14px;text-align:center;font-size:12px;color:var(--text-tertiary);line-height:1.5;}
+  .note-display{margin-top:12px;padding:10px 14px;background:var(--surface-2);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.6;border-left:3px solid var(--border-strong);}
+  .note-name{font-weight:500;color:var(--text-primary);margin-right:6px;}
+
+  /* ---- Actions ---- */
+  .action-row{width:100%;max-width:760px;display:flex;gap:8px;margin-bottom:12px;}
+  .action-btn{flex:1;padding:10px 0;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-strong);border-radius:var(--radius-md);cursor:pointer;background:var(--surface);color:var(--text-secondary);transition:all .15s;}
+  .action-btn:hover{background:var(--surface-2);color:var(--text-primary);}
+  .action-btn:active{transform:scale(.98);}
+  .action-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .action-btn.primary:hover{opacity:.9;}
+  .action-btn.primary:disabled{opacity:.4;cursor:default;transform:none;}
+  .footer{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:8px;max-width:760px;line-height:1.6;}
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);font-size:13px;font-weight:500;padding:10px 20px;border-radius:100px;opacity:0;pointer-events:none;transition:all .2s;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---- Part 2 shared ---- */
+  .pool-pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);border:1px solid rgba(16,89,193,.2);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--accent-text);}
+  .pool-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .pool-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+  .stepper{display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:var(--radius-md);overflow:hidden;}
+  .stepper-btn{width:36px;height:36px;font-size:18px;border:none;background:var(--surface-2);color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stepper-btn:hover{background:var(--border);}
+  .stepper-val{font-family:var(--mono);font-size:15px;font-weight:500;padding:0 14px;min-width:56px;text-align:center;color:var(--text-primary);border-left:1px solid var(--border-strong);border-right:1px solid var(--border-strong);height:36px;display:flex;align-items:center;justify-content:center;}
+  .control-label{font-size:12px;color:var(--text-secondary);white-space:nowrap;}
+  .controls-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .no-credits-state{padding:40px 24px;text-align:center;}
+  .no-credits-state .icon{font-size:32px;margin-bottom:12px;}
+  .no-credits-state p{font-size:14px;color:var(--text-tertiary);line-height:1.6;}
+  .no-credits-state strong{color:var(--text-secondary);}
+
+  /* ---- Sub-tabs ---- */
+  .sub-tab-nav{display:flex;gap:6px;margin-bottom:20px;}
+  .sub-tab-btn{padding:8px 18px;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-strong);border-radius:var(--radius-md);cursor:pointer;background:var(--surface-2);color:var(--text-secondary);transition:all .15s;}
+  .sub-tab-btn.active{background:var(--surface);border-color:var(--accent);color:var(--accent);}
+  .sub-panel{display:none;}
+  .sub-panel.active{display:block;}
+
+  /* ---- Model cards ---- */
+  .model-category{margin-bottom:20px;}
+  .model-category-header{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .model-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .model-card{background:var(--surface-2);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+  .model-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .model-name{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.3;}
+  .model-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;white-space:nowrap;flex-shrink:0;}
+  .badge-native{background:var(--accent-bg);color:var(--accent-sub);}
+  .badge-partner{background:var(--purple-bg);color:var(--purple-sub);}
+  .badge-video{background:var(--amber-bg);color:var(--amber-sub);}
+  .badge-audio{background:var(--green-bg);color:var(--green-sub);}
+  .badge-kb{background:var(--teal-bg);color:var(--teal-sub);}
+  .badge-analyzer{background:var(--red-bg);color:var(--red-sub);}
+  .model-stat{display:flex;align-items:baseline;gap:6px;}
+  .model-gen-count{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text-primary);line-height:1;}
+  .model-gen-label{font-size:12px;color:var(--text-secondary);}
+  .model-gen-sub{font-size:11px;color:var(--text-tertiary);}
+  .pool-bar-wrap{margin-top:6px;}
+  .pool-bar-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .pool-bar-fill{height:100%;border-radius:2px;background:var(--accent);transition:width .3s;}
+  .pool-bar-fill.warn{background:var(--amber);}
+  .pool-bar-fill.danger{background:#dc2626;}
+  .pool-bar-label{font-size:10px;color:var(--text-tertiary);margin-top:3px;}
+
+  /* ---- Discovery questions ---- */
+  .discovery-wrap{margin-top:24px;}
+  .discovery-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);user-select:none;}
+  .discovery-toggle-label{font-size:12px;font-weight:500;color:var(--text-secondary);display:flex;align-items:center;gap:8px;}
+  .discovery-toggle-label .disc-icon{font-size:14px;}
+  .discovery-toggle-arrow{font-size:11px;color:var(--text-tertiary);transition:transform .2s;}
+  .discovery-toggle-arrow.open{transform:rotate(180deg);}
+  .discovery-body{display:none;padding:14px 0 0;}
+  .disc-section{margin-bottom:16px;}
+  .disc-section:last-child{margin-bottom:0;}
+  .disc-section-label{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:8px;}
+  .disc-q{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--surface-2);border-radius:var(--radius-md);margin-bottom:6px;font-size:13px;color:var(--text-primary);line-height:1.5;}
+  .disc-q:last-child{margin-bottom:0;}
+  .disc-q-num{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text-tertiary);margin-top:2px;flex-shrink:0;}
+
+  /* ---- DC Estimator ---- */
+  .est-section-header{font-size:14px;font-weight:500;color:var(--text-primary);margin-bottom:4px;}
+  .est-section-sub{font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;}
+  .rate-ref{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+  .rate-tile{background:var(--surface-2);border-radius:var(--radius-md);padding:10px 12px;text-align:center;}
+  .rate-tile-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:3px;}
+  .rate-tile-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text-primary);}
+  .rate-tile-sub{font-size:10px;color:var(--text-tertiary);}
+  .dept-card{background:var(--surface-2);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:10px;}
+  .dept-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .dept-name-input{font-family:var(--font);font-size:15px;font-weight:500;background:transparent;border:none;outline:none;color:var(--text-primary);width:200px;border-bottom:1px solid var(--border-strong);padding-bottom:2px;}
+  .dept-name-input::placeholder{color:var(--text-tertiary);}
+  .dept-remove{font-size:12px;color:var(--text-tertiary);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:var(--radius-md);}
+  .dept-remove:hover{background:var(--border);color:var(--red);}
+  .dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .dept-field label{display:block;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:5px;}
+  .dept-field input[type=number]{font-family:var(--mono);font-size:16px;font-weight:500;padding:7px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);color:var(--text-primary);background:var(--surface);outline:none;-moz-appearance:textfield;width:100%;transition:border-color .15s;}
+  .dept-field input[type=number]:focus{border-color:var(--accent);}
+  .dept-field input[type=number]::-webkit-inner-spin-button,.dept-field input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+  .dept-field select{font-family:var(--font);font-size:14px;font-weight:500;padding:7px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);color:var(--text-primary);background:var(--surface);outline:none;cursor:pointer;width:100%;}
+  .dept-section-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin:12px 0 8px;padding-top:12px;border-top:1px solid var(--border);}
+  .dept-toggles{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .dept-toggle{font-size:11px;font-weight:500;padding:4px 10px;border-radius:100px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .15s;}
+  .dept-toggle.on.kb{background:var(--teal-bg);border-color:var(--teal-sub);color:var(--teal);}
+  .dept-toggle.on.anl{background:var(--red-bg);border-color:var(--red-sub);color:var(--red);}
+  .compare-bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+  .compare-ok{background:var(--green);}
+  .compare-warn{background:var(--amber);}
+  .compare-over{background:#dc2626;}
+
+  @media(max-width:640px){.pricing-grid{grid-template-columns:1fr 1fr;}.model-grid{grid-template-columns:1fr;}.rate-ref{grid-template-columns:1fr 1fr;}.dept-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:380px){.pricing-grid{grid-template-columns:1fr;}.dept-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo-row">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+    <span class="logo-text">Adobe &mdash; Corporate Sales</span>
+  </div>
+  <h1>Shared Credits <span>Calculator</span></h1>
+  <p class="subtitle">Annual credit pool pricing and value visualization across Creative Cloud and Document Cloud.</p>
+</div>
+
+<!-- Main tab nav -->
+<div class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabBtn1" onclick="switchTab(1)">
+      <span class="tlabel">Part 1 &mdash; Annual Pricing</span>
+      <span class="tdesc">Credits or dollars to SKU quantity</span>
+    </button>
+    <button class="tab-btn" id="tabBtn2" onclick="switchTab(2)">
+      <span class="tlabel">Part 2 &mdash; What It Gets You</span>
+      <span class="tdesc">CC and DC usage, estimator, and discovery</span>
+      <span class="tnotice" id="tab2Notice" style="display:none;">&#9679; Credits ready</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== TAB 1 ===== -->
+<div class="tab-panel active" id="panel1">
+  <div class="card">
+    <div class="card-label">Input mode</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeCredits" onclick="setMode('credits')">
+        <span class="mode-label">Credits &#8594; SKU</span>
+        <span class="mode-desc">I know the credit count</span>
+      </button>
+      <button class="mode-btn" id="modeDollars" onclick="setMode('dollars')">
+        <span class="mode-label">Dollars &#8594; SKU</span>
+        <span class="mode-desc">I know the dollar amount</span>
+      </button>
+    </div>
+    <div style="margin-top:16px;">
+      <div id="creditsInputSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="card-label" style="margin-bottom:0;">Gen credits needed</div>
+          <select id="creditPeriod" onchange="calc()" style="font-family:var(--font);font-size:12px;font-weight:500;padding:5px 10px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-2);color:var(--text-primary);outline:none;cursor:pointer;">
+            <option value="annual">Per year</option>
+            <option value="monthly">Per month &times;12</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <input type="number" id="creditInput" placeholder="e.g. 533333" min="0" step="1" oninput="calc()" />
+          <span class="unit-tag" id="creditUnitTag">gen credits / yr</span>
+        </div>
+        <div id="monthlyNote" style="display:none;font-size:11px;color:var(--text-tertiary);margin-top:6px;font-family:var(--mono);"></div>
+      </div>
+      <div id="dollarsInputSection" style="display:none;">
+        <div class="card-label">Annual dollar amount</div>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="number" id="dollarInput" placeholder="e.g. 4000" min="0" step="1" oninput="calc()" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Account / notes</div>
+    <textarea id="noteInput" placeholder="Account name, opportunity details, any context..." oninput="calc()"></textarea>
+  </div>
+  <div class="results-card">
+    <div class="results-inner">
+      <div class="zero-state" id="zeroState1">Enter an annual or monthly credit count, or a dollar amount above.</div>
+      <div id="calcResults1" style="display:none;">
+        <div class="band-row"><div class="band-badge"><span class="band-dot"></span><span id="bandLabel">--</span></div></div>
+        <div class="chain" id="inputChain"></div>
+        <div class="pricing-grid">
+          <div class="price-col list">
+            <div class="price-col-header">List</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="listPrice">--</div><div class="price-row-sub" id="listOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="listSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="listBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="listCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col target">
+            <div class="price-col-header">Target</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="targetPrice">--</div><div class="price-row-sub" id="targetOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="targetSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="targetBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="targetCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col floor">
+            <div class="price-col-header">Floor</div>
+            <div class="price-col-body">
+              <div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" id="floorPrice">--</div><div class="price-row-sub" id="floorOpRate">--</div></div>
+              <div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value" id="floorSku">--</div><div class="price-row-sub">units</div></div>
+              <div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value" id="floorBilled">--</div></div>
+              <div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value" id="floorCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col custom">
+            <div class="custom-header-wrap">
+              <span class="custom-header-label">Custom</span>
+              <span style="font-size:11px;color:var(--purple-sub);font-weight:500;">$</span>
+              <input type="number" class="custom-price-input" id="customPriceInput" placeholder="e.g. 136" min="1" step="1" oninput="calc()" />
+            </div>
+            <div class="price-col-body" id="customBody"><div class="custom-empty">Enter a unit price to see custom tier results.</div></div>
+          </div>
+        </div>
+        <div id="noteDisplay1" style="display:none;" class="note-display"></div>
+      </div>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="action-btn" onclick="resetAll()">Clear all</button>
+    <button class="action-btn primary" id="copyBtn" onclick="copySku()" disabled>Copy List SKU qty</button>
+  </div>
+  <div class="footer">Volume bands: 1&ndash;1,000 &bull; 1,001&ndash;2,500 &bull; 2,501&ndash;5,000 &bull; 5,001&ndash;10,000 units &bull; 1 unit = 1,000 ops &bull; op rate = unit price &divide; 1,000</div>
+</div>
+
+<!-- ===== TAB 2 ===== -->
+<div class="tab-panel" id="panel2">
+  <div class="results-card">
+    <div class="results-inner">
+      <div id="noCreditsState2" class="no-credits-state">
+        <div class="icon">&#9654;</div>
+        <p>Enter your annual credit pool in <strong>Part 1</strong> first, then come back here to see what those credits get your team.</p>
+      </div>
+      <div id="valueContent2" style="display:none;">
+        <div class="pool-summary">
+          <div class="pool-pill"><span class="pool-dot"></span><span id="poolLabel2">-- annual credits</span></div>
+          <div class="controls-row">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="control-label">Users:</span>
+              <div class="stepper">
+                <button class="stepper-btn" onclick="adjustUsers(-10)">&#8722;</button>
+                <span class="stepper-val" id="userCountDisp">50</span>
+                <button class="stepper-btn" onclick="adjustUsers(10)">+</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;" id="vidSecsControl">
+              <span class="control-label">Video secs:</span>
+              <div class="stepper">
+                <button class="stepper-btn" onclick="adjustVidSecs(-5)">&#8722;</button>
+                <span class="stepper-val" id="vidSecsDisp">30</span>
+                <button class="stepper-btn" onclick="adjustVidSecs(5)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-tabs -->
+        <div class="sub-tab-nav">
+          <button class="sub-tab-btn active" id="subCC" onclick="switchSubTab('cc')">&#9733; Creative Cloud</button>
+          <button class="sub-tab-btn" id="subDC" onclick="switchSubTab('dc')">&#9632; Document Cloud</button>
+        </div>
+
+        <!-- CC sub-panel -->
+        <div class="sub-panel active" id="subPanelCC">
+          <div class="model-category"><div class="model-category-header">&#9733; Firefly Native Models</div><div class="model-grid" id="nativeGrid"></div></div>
+          <div class="model-category"><div class="model-category-header">&#9670; Partner Image Models</div><div class="model-grid" id="partnerImageGrid"></div></div>
+          <div class="model-category">
+            <div class="model-category-header">&#9654; Partner Video Models &mdash; per <span id="vidSecsLabel">30</span>-sec generation</div>
+            <div class="model-grid" id="partnerVideoGrid"></div>
+          </div>
+          <div class="model-category" style="margin-bottom:0;"><div class="model-category-header">&#9834; Audio</div><div class="model-grid" id="audioGrid"></div></div>
+
+          <!-- CC Discovery questions -->
+          <div class="discovery-wrap">
+            <div class="discovery-toggle" onclick="toggleDisc('ccDisc')">
+              <span class="discovery-toggle-label"><span class="disc-icon">&#128172;</span> Discovery questions &mdash; Creative Cloud</span>
+              <span class="discovery-toggle-arrow" id="ccDiscArrow">&#9660;</span>
+            </div>
+            <div class="discovery-body" id="ccDisc">
+              <div class="disc-section">
+                <div class="disc-section-label">Usage and workflow</div>
+                <div class="disc-q"><span class="disc-q-num">1.</span>What types of creative assets does your team produce most often right now — images, video, or a mix?</div>
+                <div class="disc-q"><span class="disc-q-num">2.</span>How many people in your organization are actively creating content today, and what tools are they using?</div>
+                <div class="disc-q"><span class="disc-q-num">3.</span>Walk me through what a typical content production cycle looks like for your team — from brief to final asset.</div>
+                <div class="disc-q"><span class="disc-q-num">4.</span>Where does AI generation fit today, if at all? Are teams experimenting with any tools independently?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Volume and frequency</div>
+                <div class="disc-q"><span class="disc-q-num">5.</span>How many assets does your team typically produce in a month — rough order of magnitude is fine?</div>
+                <div class="disc-q"><span class="disc-q-num">6.</span>Are there seasonal spikes in creative output, like campaign launches or product releases, that would change usage significantly?</div>
+                <div class="disc-q"><span class="disc-q-num">7.</span>How many iterations does a typical asset go through before it is approved?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Video specifically</div>
+                <div class="disc-q"><span class="disc-q-num">8.</span>Is video generation something your team is actively doing, or is that further out on the roadmap?</div>
+                <div class="disc-q"><span class="disc-q-num">9.</span>What formats are you targeting — short-form social, long-form, internal communications?</div>
+                <div class="disc-q"><span class="disc-q-num">10.</span>What resolution and quality standard does your brand require for video output?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Sizing and scale</div>
+                <div class="disc-q"><span class="disc-q-num">11.</span>How do you expect AI-assisted creation to change the volume of assets your team produces over the next year?</div>
+                <div class="disc-q"><span class="disc-q-num">12.</span>Is this a single team use case or are there multiple departments that would draw from the same credit pool?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DC sub-panel -->
+        <div class="sub-panel" id="subPanelDC">
+
+          <!-- DC Usage viz -->
+          <div class="model-category"><div class="model-category-header">&#9634; Knowledge Base &mdash; queries / user / mo <span id="kbPoolNote" style="font-size:10px;font-weight:400;opacity:.7;"></span></div><div class="model-grid" id="kbGrid"></div></div>
+          <div class="model-category"><div class="model-category-header">&#9635; Analyzer &mdash; docs / user / mo <span id="analyzerPoolNote" style="font-size:10px;font-weight:400;opacity:.7;"></span></div><div class="model-grid" id="analyzerGrid"></div></div>
+
+          <div style="border-top:1px solid var(--border);margin:24px 0;"></div>
+
+          <!-- DC Estimator -->
+          <div style="margin-bottom:20px;">
+            <div class="est-section-header">DC Credit Estimator</div>
+            <div class="est-section-sub">Build a credit estimate by department. The total is compared against your Part 1 pool and updates live.</div>
+            <div class="rate-ref">
+              <div class="rate-tile"><div class="rate-tile-label">Doc Ingestion</div><div class="rate-tile-value">150</div><div class="rate-tile-sub">cr / doc</div></div>
+              <div class="rate-tile"><div class="rate-tile-label">KB Query</div><div class="rate-tile-value">50</div><div class="rate-tile-sub">cr / query</div></div>
+              <div class="rate-tile"><div class="rate-tile-label">Extraction</div><div class="rate-tile-value">50</div><div class="rate-tile-sub">cr / doc (strict / interp)</div></div>
+              <div class="rate-tile"><div class="rate-tile-label">Table Extraction</div><div class="rate-tile-value">300</div><div class="rate-tile-sub">cr / doc</div></div>
+            </div>
+
+            <!-- Analyzer setup buffer -->
+            <div style="background:var(--surface-2);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px;">
+              <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:10px;">Analyzer setup buffer <span style="font-size:11px;font-weight:400;color:var(--text-tertiary);">— one-time finetuning cost before production use</span></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="dept-field"><label>Sample docs</label><input type="number" id="anlSetupDocs" value="100" min="0" step="1" oninput="calcEst()" /><div style="font-size:10px;color:var(--text-tertiary);margin-top:3px;">Default: 100</div></div>
+                <div class="dept-field"><label>Attributes / sample doc</label><input type="number" id="anlSetupAttrs" value="35" min="0" step="1" oninput="calcEst()" /><div style="font-size:10px;color:var(--text-tertiary);margin-top:3px;">Default: 35</div></div>
+              </div>
+            </div>
+
+            <!-- Dept list -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:12px;font-weight:500;color:var(--text-secondary);">Departments</div>
+              <button onclick="addDept()" style="font-family:var(--font);font-size:12px;font-weight:500;padding:6px 14px;border:1px solid var(--accent);border-radius:var(--radius-md);background:var(--accent-bg);color:var(--accent);cursor:pointer;">+ Add department</button>
+            </div>
+            <div id="deptList"></div>
+          </div>
+
+          <!-- Estimator results -->
+          <div id="estZero" style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-tertiary);">Add at least one department to see the credit estimate.</div>
+          <div id="estContent" style="display:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+              <div style="background:var(--teal-bg);border-radius:var(--radius-md);padding:14px 16px;">
+                <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-sub);margin-bottom:4px;">KB Total</div>
+                <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--teal);" id="estKbTotal">--</div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px;">annual credits</div>
+              </div>
+              <div style="background:var(--red-bg);border-radius:var(--radius-md);padding:14px 16px;">
+                <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--red-sub);margin-bottom:4px;">Analyzer Total</div>
+                <div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--red);" id="estAnlTotal">--</div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px;">annual credits</div>
+              </div>
+              <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:14px 16px;">
+                <div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:4px;">Combined Total</div>
+                <div style="font-family:var(--mono);font-size:24px;font-weight:500;color:var(--text-primary);" id="estGrandTotal">--</div>
+                <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px;">annual credits needed</div>
+              </div>
+            </div>
+            <div id="deptBreakdown" style="margin-bottom:16px;"></div>
+            <div id="poolComparison"></div>
+          </div>
+
+          <!-- DC Discovery questions -->
+          <div class="discovery-wrap" style="margin-top:24px;">
+            <div class="discovery-toggle" onclick="toggleDisc('dcDisc')">
+              <span class="discovery-toggle-label"><span class="disc-icon">&#128172;</span> Discovery questions &mdash; Document Cloud</span>
+              <span class="discovery-toggle-arrow" id="dcDiscArrow">&#9660;</span>
+            </div>
+            <div class="discovery-body" id="dcDisc">
+              <div class="disc-section">
+                <div class="disc-section-label">Document landscape</div>
+                <div class="disc-q"><span class="disc-q-num">1.</span>What types of documents does your organization work with most — contracts, reports, forms, technical docs, or something else?</div>
+                <div class="disc-q"><span class="disc-q-num">2.</span>Where do these documents live today — shared drives, document management systems, email, or scattered across tools?</div>
+                <div class="disc-q"><span class="disc-q-num">3.</span>How many documents would you estimate are actively referenced by your team in a given month?</div>
+                <div class="disc-q"><span class="disc-q-num">4.</span>Are there specific document types that are high-value — ones where finding the right answer quickly would save meaningful time?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Knowledge Base sizing</div>
+                <div class="disc-q"><span class="disc-q-num">5.</span>Which teams or roles would be querying these documents most often?</div>
+                <div class="disc-q"><span class="disc-q-num">6.</span>How often does a typical user need to search or ask questions across your document library in a given day or week?</div>
+                <div class="disc-q"><span class="disc-q-num">7.</span>How many users would need access to Knowledge Base at launch versus over the first year?</div>
+                <div class="disc-q"><span class="disc-q-num">8.</span>Are most of your users on Acrobat Studio, or are there users on other plans like Reader, Standard, or Express?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Analyzer sizing</div>
+                <div class="disc-q"><span class="disc-q-num">9.</span>Are there processes today where your team manually extracts data from documents — like pulling fields from contracts or tables from reports?</div>
+                <div class="disc-q"><span class="disc-q-num">10.</span>How many documents would go through that extraction process in a typical month?</div>
+                <div class="disc-q"><span class="disc-q-num">11.</span>How many specific data points or attributes does your team need to pull from each document on average?</div>
+                <div class="disc-q"><span class="disc-q-num">12.</span>Are the documents fairly consistent in structure, or do they vary a lot across sources?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Setup and rollout</div>
+                <div class="disc-q"><span class="disc-q-num">13.</span>How quickly are you looking to have this operational — are there internal deadlines or project timelines driving the rollout?</div>
+                <div class="disc-q"><span class="disc-q-num">14.</span>Who internally would own the initial document ingestion and configuration process?</div>
+                <div class="disc-q"><span class="disc-q-num">15.</span>Are there compliance or data residency requirements that would affect which documents can be ingested?</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /subPanelDC -->
+      </div><!-- /valueContent2 -->
+    </div>
+  </div>
+  <div class="footer">Credits sourced from Adobe helpx and DC metering policy. Query rates: Low = 5/mo, Mid = 15/mo, High = 30/mo. Analyzer attributes: Low = 10, Mid = 25, High = 100.</div>
+</div><!-- /panel2 -->
+
+<div class="toast" id="toast">List SKU qty copied</div>
+
+<script>
+// ===== BANDS =====
+var BANDS=[
+  {label:'1 – 1,000 units',      min:1,    max:1000,  list:150,target:125,floor:100},
+  {label:'1,001 – 2,500 units',  min:1001, max:2500,  list:135,target:113,floor:90},
+  {label:'2,501 – 5,000 units',  min:2501, max:5000,  list:120,target:100,floor:80},
+  {label:'5,001 – 10,000 units', min:5001, max:10000, list:105,target:88, floor:70}
+];
+
+// ===== CC MODELS =====
+var CC={
+  native:[
+    {name:'Firefly Image 5',       badge:'native', creditsPerGen:10,  type:'image'},
+    {name:'Firefly Image 4 Ultra', badge:'native', creditsPerGen:20,  type:'image'}
+  ],
+  partnerImage:[
+    {name:'Gemini 2.5 Flash',      badge:'partner',creditsPerGen:10,  type:'image'},
+    {name:'GPT Image 1.5',         badge:'partner',creditsPerGen:20,  type:'image'},
+    {name:'GPT Image 2 (med res)', badge:'partner',creditsPerGen:10,  type:'image'},
+    {name:'FLUX.2',                badge:'partner',creditsPerGen:20,  type:'image'}
+  ],
+  partnerVideo:[
+    {name:'Runway Gen-4.5',        badge:'video',  creditsPerSec:35,  type:'video'},
+    {name:'Luma Ray3 720p',        badge:'video',  creditsPerSec:100, type:'video'},
+    {name:'Kling 3.0 1080p+audio', badge:'video',  creditsPerSec:35,  type:'video'},
+    {name:'Veo 3.1 720p',          badge:'video',  creditsPerSec:50,  type:'video'}
+  ],
+  audio:[
+    {name:'ElevenLabs Speech',     badge:'audio',  creditsPerGen:15,  type:'audio',unit:'per 1k chars'}
+  ]
+};
+
+// ===== DC MODELS =====
+var DC={
+  kb:[
+    {name:'Query within Studio',       badge:'kb',      creditsPerGen:50, type:'dc',unit:'queries / user / mo',note:'50 cr / query'},
+    {name:'Query via 3rd-Party / API', badge:'kb',      creditsPerGen:50, type:'dc',unit:'queries / user / mo',note:'50 cr / query'}
+  ],
+  analyzer:[
+    {name:'Strict Extraction',         badge:'analyzer',creditsPerGen:50, type:'dc',unit:'docs / user / mo',note:'50 cr / doc'},
+    {name:'Interpretive Extraction',   badge:'analyzer',creditsPerGen:50, type:'dc',unit:'docs / user / mo',note:'50 cr / doc'},
+    {name:'Table Extraction',          badge:'analyzer',creditsPerGen:300,type:'dc',unit:'docs / user / mo',note:'300 cr / doc (GA in Q4)'}
+  ]
+};
+
+// ===== STATE =====
+var mode='credits',lastListSku=null,annualCredits=0,users=50,vidSecs=30,subTab='cc';
+var depts=[],deptCounter=0;
+var QUERY_RATES={Low:5,Mid:15,High:30};
+var ATTR_RATES={Low:10,Mid:25,High:100};
+
+// ===== HELPERS =====
+function getBand(q){for(var i=0;i<BANDS.length;i++){if(q>=BANDS[i].min&&q<=BANDS[i].max)return BANDS[i];}return BANDS[BANDS.length-1];}
+function skuFromCredits(c){return Math.ceil(c/20000);}
+function skuFromDollars(d,p){return Math.ceil(d/p);}
+function creditsFromSku(s){return s*20000;}
+function resolveFromCredits(c){var s=skuFromCredits(c);return{band:getBand(s),sku:s};}
+function resolveFromDollars(d){var s=Math.ceil(d/BANDS[0].list);for(var i=0;i<4;i++){var b=getBand(s);s=Math.ceil(d/b.list);}return{band:getBand(s),sku:s};}
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function fmtd(n){return'$'+Math.round(n).toLocaleString('en-US');}
+function fmtRate(p){return'$'+(p/1000).toFixed(3)+' / op';}
+function esc(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function formatGens(n){if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';if(n>=10)return Math.round(n).toLocaleString('en-US');if(n>=1)return n.toFixed(1);return n.toFixed(2);}
+
+// ===== PART 1 =====
+function renderStdCol(prefix,price,ic,id){
+  var sku=ic!==null?skuFromCredits(ic):skuFromDollars(id,price);
+  var billed=sku*price,cr=creditsFromSku(sku);
+  document.getElementById(prefix+'Price').textContent='$'+price;
+  document.getElementById(prefix+'OpRate').textContent=fmtRate(price);
+  document.getElementById(prefix+'Sku').textContent=fmt(sku);
+  document.getElementById(prefix+'Billed').textContent=fmtd(billed);
+  document.getElementById(prefix+'Credits').textContent=fmt(cr);
+  return sku;
+}
+function renderCustomCol(cp,ic,id){
+  var el=document.getElementById('customBody');
+  if(!cp||cp<=0){el.innerHTML='<div class="custom-empty">Enter a unit price to see custom tier results.</div>';return;}
+  var sku=ic!==null?skuFromCredits(ic):skuFromDollars(id,cp);
+  var billed=sku*cp,cr=creditsFromSku(sku),band=getBand(sku);
+  el.innerHTML='<div class="price-row"><div class="price-row-label">Unit price</div><div class="price-row-value big" style="color:var(--purple);">$'+cp+'</div><div class="price-row-sub">'+fmtRate(cp)+'</div></div>'+
+    '<div class="price-row"><div class="price-row-label">SKU qty</div><div class="price-row-value">'+fmt(sku)+'</div><div class="price-row-sub">units</div></div>'+
+    '<div class="price-row"><div class="price-row-label">Billed total</div><div class="price-row-value">'+fmtd(billed)+'</div></div>'+
+    '<div class="price-row"><div class="price-row-label">Gen credits</div><div class="price-row-value">'+fmt(cr)+'</div><div class="price-row-sub">Band: '+band.label+'</div></div>';
+}
+
+function calc(){
+  var note=document.getElementById('noteInput').value.trim();
+  var cp=parseFloat(document.getElementById('customPriceInput').value)||null;
+  var show=false,ic=null,id=null,resolved=null;
+  if(mode==='credits'){
+    var v=parseFloat(document.getElementById('creditInput').value);
+    var isM=document.getElementById('creditPeriod').value==='monthly';
+    document.getElementById('creditUnitTag').textContent=isM?'gen credits / mo':'gen credits / yr';
+    var nEl=document.getElementById('monthlyNote');
+    if(v>0&&!isNaN(v)&&isM){nEl.style.display='block';nEl.textContent=fmt(v)+' \u00d7 12 = '+fmt(v*12)+' annual credits';}
+    else{nEl.style.display='none';}
+    if(v>0&&!isNaN(v)){ic=isM?v*12:v;resolved=resolveFromCredits(ic);show=true;}
+  } else {
+    var v=parseFloat(document.getElementById('dollarInput').value);
+    if(v>0&&!isNaN(v)){id=v;resolved=resolveFromDollars(v);show=true;}
+  }
+  document.getElementById('zeroState1').style.display=show?'none':'block';
+  document.getElementById('calcResults1').style.display=show?'block':'none';
+  document.getElementById('copyBtn').disabled=!show;
+  document.getElementById('tab2Notice').style.display=show?'inline':'none';
+  if(!show){lastListSku=null;annualCredits=0;renderCustomCol(cp,null,null);renderValueTab();return;}
+  var band=resolved.band;
+  document.getElementById('bandLabel').textContent=band.label;
+  var chainEl=document.getElementById('inputChain');
+  if(ic!==null){
+    var ops=ic/20,isM2=document.getElementById('creditPeriod').value==='monthly';
+    var rawV=parseFloat(document.getElementById('creditInput').value);
+    var cl=isM2?fmt(rawV)+'/mo \u00d712 = <span class="chain-val">'+fmt(ic)+'</span> annual credits':'<span class="chain-val">'+fmt(ic)+'</span> annual credits';
+    chainEl.innerHTML='<span class="chain-step">'+cl+'</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(ops)+'</span> ops</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+    annualCredits=ic;
+  } else {
+    var lops=id/(band.list/1000);
+    chainEl.innerHTML='<span class="chain-step"><span class="chain-val">'+fmtd(id)+'</span></span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(lops)+'</span> ops</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+    annualCredits=creditsFromSku(resolved.sku);
+  }
+  var lsku=renderStdCol('list',band.list,ic,id);
+  renderStdCol('target',band.target,ic,id);
+  renderStdCol('floor',band.floor,ic,id);
+  lastListSku=lsku;
+  renderCustomCol(cp,ic,id);
+  var nEl2=document.getElementById('noteDisplay1');
+  if(note){nEl2.style.display='block';nEl2.innerHTML='<span class="note-name">Note:</span>'+esc(note);}
+  else{nEl2.style.display='none';}
+  renderValueTab();
+}
+
+// ===== PART 2: VALUE TAB =====
+function renderValueTab(){
+  var has=annualCredits>0;
+  document.getElementById('noCreditsState2').style.display=has?'none':'block';
+  document.getElementById('valueContent2').style.display=has?'block':'none';
+  if(!has)return;
+  document.getElementById('poolLabel2').textContent=fmt(annualCredits)+' annual credits';
+  document.getElementById('userCountDisp').textContent=users;
+  document.getElementById('vidSecsDisp').textContent=vidSecs;
+  document.getElementById('vidSecsLabel').textContent=vidSecs;
+  var cpu=annualCredits/users/12;
+  renderModelGrid('nativeGrid',CC.native,cpu);
+  renderModelGrid('partnerImageGrid',CC.partnerImage,cpu);
+  renderModelGrid('partnerVideoGrid',CC.partnerVideo,cpu);
+  renderModelGrid('audioGrid',CC.audio,cpu);
+  renderDCViz(cpu);
+  calcEst();
+}
+
+function renderDCViz(cpu){
+  renderModelGrid('kbGrid',DC.kb,cpu);
+  renderModelGrid('analyzerGrid',DC.analyzer,cpu);
+  document.getElementById('kbPoolNote').textContent='';
+  document.getElementById('analyzerPoolNote').textContent='';
+}
+
+function renderModelGrid(gridId,models,cpu){
+  var el=document.getElementById(gridId);
+  el.innerHTML='';
+  models.forEach(function(m){
+    var cpg=m.type==='video'?m.creditsPerSec*vidSecs:m.creditsPerGen;
+    var gpm=cpu/cpg,tpm=gpm*users;
+    var pct=Math.min(100,(cpg/cpu)*100);
+    var bc=pct>80?'danger':pct>50?'warn':'';
+    var badgeMap={native:'Firefly',partner:'Partner',video:'Video',audio:'Audio',kb:'Knowledge Base',analyzer:'Analyzer'};
+    var ul=m.unit||(m.type==='video'?vidSecs+'-sec videos / user / mo':m.type==='audio'?'1k-char blocks / user / mo':'images / user / mo');
+    var cn=m.note||(m.type==='video'?(m.creditsPerSec*vidSecs)+' cr ('+m.creditsPerSec+' cr/sec \u00d7 '+vidSecs+'s)':cpg+' cr / gen');
+    var tl=m.type==='dc'?fmt(tpm)+' total actions / mo across '+users+' users':fmt(tpm)+' total / mo across '+users+' users';
+    el.innerHTML+='<div class="model-card">'+
+      '<div class="model-card-top"><span class="model-name">'+m.name+'</span><span class="model-badge badge-'+m.badge+'">'+badgeMap[m.badge]+'</span></div>'+
+      '<div class="model-stat"><span class="model-gen-count">'+formatGens(gpm)+'</span><span class="model-gen-label">'+ul+'</span></div>'+
+      '<div class="model-gen-sub">'+tl+'</div>'+
+      '<div class="pool-bar-wrap"><div class="pool-bar-track"><div class="pool-bar-fill '+bc+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="pool-bar-label">'+cn+'</div></div></div>';
+  });
+}
+
+// ===== DC ESTIMATOR =====
+function addDept(){
+  deptCounter++;
+  depts.push({id:'dept'+deptCounter,useKB:true,useAnl:false});
+  renderDeptList();calcEst();
+}
+function removeDept(id){
+  depts=depts.filter(function(d){return d.id!==id;});
+  renderDeptList();calcEst();
+}
+function toggleDeptFeature(id,feat){
+  var d=depts.find(function(d){return d.id===id;});
+  if(!d)return;
+  if(feat==='kb')d.useKB=!d.useKB;else d.useAnl=!d.useAnl;
+  renderDeptList();calcEst();
+}
+function renderDeptList(){
+  var el=document.getElementById('deptList');
+  el.innerHTML='';
+  if(!depts.length){el.innerHTML='<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-tertiary);">No departments yet.</div>';return;}
+  depts.forEach(function(d){
+    var kbc=d.useKB?'dept-toggle on kb':'dept-toggle';
+    var ac=d.useAnl?'dept-toggle on anl':'dept-toggle';
+    var kbS=d.useKB?
+      '<div class="dept-section-label">&#9634; Knowledge Base</div>'+
+      '<div class="dept-grid">'+
+        '<div class="dept-field"><label>Total users</label><input type="number" id="'+d.id+'_users" placeholder="e.g. 200" min="0" step="1" oninput="calcEst()" /></div>'+
+        '<div class="dept-field"><label>Docs to ingest</label><input type="number" id="'+d.id+'_kbDocs" placeholder="e.g. 5000" min="0" step="1" oninput="calcEst()" /></div>'+
+        '<div class="dept-field"><label>Query volume</label><select id="'+d.id+'_queryRate" onchange="calcEst()"><option value="Low">Low (5/mo)</option><option value="Mid" selected>Mid (15/mo)</option><option value="High">High (30/mo)</option></select></div>'+
+        '<div class="dept-field"><label>Non-Studio users</label><input type="number" id="'+d.id+'_nonStudio" placeholder="e.g. 20" min="0" step="1" oninput="calcEst()" /></div>'+
+      '</div>':'';
+    var aS=d.useAnl?
+      '<div class="dept-section-label">&#9635; Analyzer</div>'+
+      '<div class="dept-grid">'+
+        '<div class="dept-field"><label>Docs to process</label><input type="number" id="'+d.id+'_anlDocs" placeholder="e.g. 1000" min="0" step="1" oninput="calcEst()" /></div>'+
+        '<div class="dept-field"><label>Attributes / doc</label><select id="'+d.id+'_attrRate" onchange="calcEst()"><option value="Low">Low (10)</option><option value="Mid" selected>Mid (25)</option><option value="High">High (100)</option></select></div>'+
+        '<div class="dept-field"><label>Extraction type</label><select id="'+d.id+'_extType" onchange="calcEst()"><option value="strict">Strict (50 cr)</option><option value="interpretive">Interpretive (50 cr)</option><option value="table">Table (300 cr)</option></select></div>'+
+      '</div>':'';
+    el.innerHTML+='<div class="dept-card"><div class="dept-card-header"><input class="dept-name-input" id="'+d.id+'_name" placeholder="Department name" oninput="calcEst()" /><button class="dept-remove" onclick="removeDept(\''+d.id+'\')">Remove</button></div>'+
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">Active features:</div>'+
+      '<div class="dept-toggles"><button class="'+kbc+'" onclick="toggleDeptFeature(\''+d.id+'\',\'kb\')">&#9634; Knowledge Base</button><button class="'+ac+'" onclick="toggleDeptFeature(\''+d.id+'\',\'anl\')">&#9635; Analyzer</button></div>'+
+      kbS+aS+'</div>';
+  });
+}
+function dv(id,s,def){var el=document.getElementById(id+'_'+s);if(!el)return def||0;return parseFloat(el.value)||0;}
+function ds(id,s,def){var el=document.getElementById(id+'_'+s);if(!el)return def;return el.value||def;}
+function dn(id){var el=document.getElementById(id+'_name');return(!el||!el.value.trim())?'Unnamed dept':el.value.trim();}
+
+function calcEst(){
+  if(!depts.length){document.getElementById('estZero').style.display='block';document.getElementById('estContent').style.display='none';return;}
+  document.getElementById('estZero').style.display='none';
+  document.getElementById('estContent').style.display='block';
+  var sd=parseFloat(document.getElementById('anlSetupDocs').value)||100;
+  var sa=parseFloat(document.getElementById('anlSetupAttrs').value)||35;
+  var setupCost=(sd*150)+(sd*sa*50);
+  var totalKB=0,totalAnl=setupCost,rows='';
+  depts.forEach(function(d){
+    var dKB=0,dAnl=0,name=dn(d.id);
+    if(d.useKB){
+      var users2=dv(d.id,'users'),kbDocs=dv(d.id,'kbDocs'),nonS=dv(d.id,'nonStudio');
+      var qr=ds(d.id,'queryRate','Mid'),qpm=QUERY_RATES[qr];
+      dKB=(kbDocs*150)+(nonS*qpm*12*50);
+    }
+    if(d.useAnl){
+      var aDocs=dv(d.id,'anlDocs'),ar=ds(d.id,'attrRate','Mid'),attrs=ATTR_RATES[ar];
+      var et=ds(d.id,'extType','strict'),ecpd=et==='table'?300:50;
+      dAnl=(aDocs*150)+(aDocs*ecpd)+(aDocs*attrs*50);
+    }
+    totalKB+=dKB;totalAnl+=dAnl;
+    rows+='<tr style="border-bottom:1px solid var(--border);">'+
+      '<td style="padding:8px 10px;font-size:13px;">'+esc(name)+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:'+(d.useKB?'var(--teal)':'var(--text-tertiary)')+';">'+(d.useKB?fmt(Math.round(dKB)):'--')+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:'+(d.useAnl?'var(--red)':'var(--text-tertiary)')+';">'+(d.useAnl?fmt(Math.round(dAnl)):'--')+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;font-weight:500;">'+fmt(Math.round(dKB+dAnl))+'</td></tr>';
+  });
+  var grand=Math.round(totalKB+totalAnl);
+  document.getElementById('estKbTotal').textContent=fmt(Math.round(totalKB));
+  document.getElementById('estAnlTotal').textContent=fmt(Math.round(totalAnl));
+  document.getElementById('estGrandTotal').textContent=fmt(grand);
+  document.getElementById('deptBreakdown').innerHTML=rows?
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:4px;">'+
+    '<thead><tr style="background:var(--surface-2);">'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);">Dept</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-sub);">KB</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--red-sub);">Analyzer</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);">Total</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody>'+
+    '<tfoot><tr style="background:var(--surface-2);">'+
+    '<td style="padding:8px 10px;font-size:12px;font-weight:500;color:var(--text-secondary);">Analyzer setup buffer</td>'+
+    '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:var(--text-tertiary);">--</td>'+
+    '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:var(--red);">'+fmt(Math.round(setupCost))+'</td>'+
+    '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;font-weight:500;">'+fmt(Math.round(setupCost))+'</td>'+
+    '</tr></tfoot></table>':'';
+  // Pool comparison
+  var cEl=document.getElementById('poolComparison');
+  if(annualCredits<=0){cEl.innerHTML='<div style="font-size:13px;color:var(--text-secondary);padding:12px 0;">Enter a credit pool in <strong>Part 1</strong> to compare against this estimate.</div>';return;}
+  var diff=annualCredits-grand,pct=Math.min(100,(grand/annualCredits)*100);
+  var bc=pct<=80?'compare-ok':pct<=100?'compare-warn':'compare-over';
+  var verdict=diff>=0?
+    'Pool covers the estimate with <strong>'+fmt(diff)+' credits to spare</strong> ('+(100-Math.round(pct))+'% headroom).':
+    '<strong>Pool is short by '+fmt(Math.abs(diff))+' credits</strong> ('+Math.round(pct-100)+'% over). Recommend increasing the pool or splitting usage across periods.';
+  cEl.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">'+
+    '<div style="background:var(--accent-bg);border-radius:var(--radius-md);padding:12px 14px;"><div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-sub);margin-bottom:3px;">Annual pool (Part 1)</div><div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent-text);">'+fmt(annualCredits)+'</div></div>'+
+    '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;"><div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:3px;">Estimated need</div><div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--text-primary);">'+fmt(grand)+'</div></div>'+
+    '</div>'+
+    '<div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:4px;">'+
+    '<div class="compare-bar-fill '+bc+'" style="width:'+Math.min(pct,100)+'%;height:100%;border-radius:4px;"></div></div>'+
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-bottom:10px;"><span>0</span><span>'+fmt(annualCredits)+' (pool)</span></div>'+
+    '<div style="padding:10px 14px;background:var(--surface-2);border-radius:var(--radius-md);font-size:13px;color:var(--text-secondary);line-height:1.6;">'+verdict+'</div>';
+}
+
+// ===== DISCOVERY TOGGLE =====
+function toggleDisc(id){
+  var body=document.getElementById(id);
+  var arrow=document.getElementById(id+'Arrow');
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arrow.classList.toggle('open',!open);
+}
+
+// ===== CONTROLS =====
+function adjustUsers(d){users=Math.max(1,users+d);document.getElementById('userCountDisp').textContent=users;renderValueTab();}
+function adjustVidSecs(d){vidSecs=Math.max(5,vidSecs+d);document.getElementById('vidSecsDisp').textContent=vidSecs;renderValueTab();}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('modeCredits').classList.toggle('active',m==='credits');
+  document.getElementById('modeDollars').classList.toggle('active',m==='dollars');
+  document.getElementById('creditsInputSection').style.display=m==='credits'?'block':'none';
+  document.getElementById('dollarsInputSection').style.display=m==='dollars'?'block':'none';
+  document.getElementById('zeroState1').style.display='block';
+  document.getElementById('calcResults1').style.display='none';
+  document.getElementById('copyBtn').disabled=true;
+  lastListSku=null;annualCredits=0;renderValueTab();
+}
+
+function switchTab(n){
+  [1,2].forEach(function(i){
+    document.getElementById('panel'+i).classList.toggle('active',n===i);
+    document.getElementById('tabBtn'+i).classList.toggle('active',n===i);
+  });
+  if(n===2)renderValueTab();
+}
+
+function switchSubTab(t){
+  subTab=t;
+  document.getElementById('subCC').classList.toggle('active',t==='cc');
+  document.getElementById('subDC').classList.toggle('active',t==='dc');
+  document.getElementById('subPanelCC').classList.toggle('active',t==='cc');
+  document.getElementById('subPanelDC').classList.toggle('active',t==='dc');
+  document.getElementById('vidSecsControl').style.display=t==='cc'?'flex':'none';
+}
+
+function resetAll(){
+  document.getElementById('creditInput').value='';
+  document.getElementById('dollarInput').value='';
+  document.getElementById('noteInput').value='';
+  document.getElementById('customPriceInput').value='';
+  document.getElementById('creditPeriod').value='annual';
+  document.getElementById('creditUnitTag').textContent='gen credits / yr';
+  document.getElementById('monthlyNote').style.display='none';
+  lastListSku=null;annualCredits=0;
+  document.getElementById('zeroState1').style.display='block';
+  document.getElementById('calcResults1').style.display='none';
+  document.getElementById('copyBtn').disabled=true;
+  document.getElementById('tab2Notice').style.display='none';
+  renderValueTab();
+}
+
+function copySku(){
+  if(lastListSku===null)return;
+  navigator.clipboard.writeText(String(lastListSku)).then(function(){
+    var t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},2000);
+  });
+}
+
+// Init
+addDept();
+renderValueTab();
+</script>
+</body>
+</html>
