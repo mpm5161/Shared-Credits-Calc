@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Shared Credits Calculator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f4f1;--surface:#fff;--s2:#f0efe9;
+  --border:rgba(0,0,0,.10);--border-s:rgba(0,0,0,.18);
+  --t1:#1a1a18;--t2:#6b6b66;--t3:#a0a09a;
+  --acc:#1059c1;--acc-bg:#e8f0fb;--acc-t:#0a3d8f;--acc-s:#2563c4;
+  --grn:#0a7c4a;--grn-bg:#e6f4ee;--grn-s:#1a9e60;
+  --amb:#7a4f00;--amb-bg:#fef3e0;--amb-s:#a06800;
+  --pur:#6b21a8;--pur-bg:#f3e8ff;--pur-s:#7c3aed;
+  --red:#b91c1c;--red-bg:#fef2f2;--red-s:#dc2626;
+  --tel:#0e7490;--tel-bg:#ecfeff;--tel-s:#0891b2;
+  --r-md:8px;--r-lg:14px;--r-xl:20px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
+  --mono:'SF Mono','Consolas','Menlo',monospace;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#141412;--surface:#1e1e1b;--s2:#282824;
+  --border:rgba(255,255,255,.09);--border-s:rgba(255,255,255,.16);
+  --t1:#f0ede6;--t2:#9a9890;--t3:#5a5a54;
+  --acc:#4d87e8;--acc-bg:#0c2a5c;--acc-t:#a8c8f8;--acc-s:#7aaaf0;
+  --grn:#34d399;--grn-bg:#052e1c;--grn-s:#6ee7b7;
+  --amb:#fbbf24;--amb-bg:#2d1f00;--amb-s:#fcd34d;
+  --pur:#c084fc;--pur-bg:#2e1065;--pur-s:#d8b4fe;
+  --red:#f87171;--red-bg:#450a0a;--red-s:#fca5a5;
+  --tel:#67e8f9;--tel-bg:#083344;--tel-s:#22d3ee;
+  --shadow:0 1px 3px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2);
+}}
+html,body{background:var(--bg);font-family:var(--font);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh;}
+body{display:flex;flex-direction:column;align-items:center;padding:40px 20px 80px;}
+
+/* ---- layout ---- */
+.page-header{width:100%;max-width:780px;margin-bottom:24px;}
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.logo-mark{width:32px;height:32px;background:var(--acc);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.logo-text{font-size:13px;font-weight:500;color:var(--t2);letter-spacing:.04em;text-transform:uppercase;}
+h1{font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.25;}
+h1 span{color:var(--t3);}
+.subtitle{font-size:14px;color:var(--t2);margin-top:5px;line-height:1.5;}
+
+/* ---- main tabs ---- */
+.tab-nav-wrap{width:100%;max-width:780px;margin-bottom:16px;}
+.tab-nav{display:flex;background:var(--s2);border:1px solid var(--border);border-radius:var(--r-lg);padding:4px;gap:4px;}
+.tab-btn{flex:1;padding:11px 16px;font-family:var(--font);font-size:13px;font-weight:500;border:none;border-radius:calc(var(--r-lg) - 4px);cursor:pointer;background:transparent;color:var(--t2);transition:all .18s;text-align:center;line-height:1.3;}
+.tab-btn .tl{display:block;}
+.tab-btn .td{font-size:11px;font-weight:400;opacity:.75;margin-top:2px;}
+.tab-btn .tn{font-size:10px;font-weight:500;color:var(--acc);margin-top:3px;}
+.tab-btn.active{background:var(--surface);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.tab-panel{display:none;width:100%;max-width:780px;}
+.tab-panel.active{display:block;}
+
+/* ---- cards ---- */
+.card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px;margin-bottom:12px;box-shadow:var(--shadow);}
+.card-label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:12px;}
+.results-card{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow);margin-bottom:12px;}
+.ri{padding:24px;}
+.zero-state{padding:40px 24px;text-align:center;color:var(--t3);font-size:14px;line-height:1.6;}
+
+/* ---- inputs ---- */
+.input-row{display:flex;align-items:center;gap:10px;}
+.prefix{font-family:var(--mono);font-size:28px;font-weight:500;color:var(--t3);user-select:none;padding-left:4px;}
+input[type=number]{flex:1;font-family:var(--mono);font-size:28px;font-weight:500;padding:12px 16px;border:1px solid var(--border-s);border-radius:var(--r-md);color:var(--t1);background:var(--s2);-moz-appearance:textfield;outline:none;transition:border-color .15s;width:100%;}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number]:focus{border-color:var(--acc);background:var(--surface);}
+input[type=number]::placeholder{color:var(--t3);font-weight:400;}
+.unit-tag{font-size:12px;color:var(--t2);white-space:nowrap;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;}
+textarea{width:100%;font-family:var(--font);font-size:14px;color:var(--t1);background:var(--s2);border:1px solid var(--border-s);border-radius:var(--r-md);padding:12px 14px;resize:vertical;min-height:80px;line-height:1.6;outline:none;transition:border-color .15s;}
+textarea:focus{border-color:var(--acc);background:var(--surface);}
+textarea::placeholder{color:var(--t3);}
+select{font-family:var(--font);font-size:13px;font-weight:500;padding:6px 10px;border:1px solid var(--border-s);border-radius:var(--r-md);color:var(--t1);background:var(--s2);outline:none;cursor:pointer;}
+
+/* ---- mode / bundle toggles ---- */
+.mode-toggle{display:flex;gap:8px;}
+.mode-btn{flex:1;padding:10px 12px;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-s);border-radius:var(--r-md);cursor:pointer;background:var(--s2);color:var(--t2);transition:all .15s;text-align:center;line-height:1.3;}
+.mode-btn .ml{display:block;}
+.mode-btn .md{font-size:11px;font-weight:400;opacity:.75;margin-top:2px;}
+.mode-btn.active{background:var(--surface);border-color:var(--acc);color:var(--acc);}
+
+/* bundle cards */
+.bundle-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px;}
+.bundle-card{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:all .15s;text-align:center;}
+.bundle-card:hover{background:var(--surface);border-color:var(--acc-s);}
+.bundle-card.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc-t);}
+.bundle-name{font-size:13px;font-weight:500;margin-bottom:4px;}
+.bundle-price{font-family:var(--mono);font-size:16px;font-weight:500;margin-bottom:2px;}
+.bundle-credits{font-size:11px;color:var(--t2);}
+.bundle-card.active .bundle-credits{color:var(--acc-s);}
+
+/* ---- pricing grid ---- */
+.band-row{display:flex;align-items:center;margin-bottom:16px;}
+.band-badge{display:inline-flex;align-items:center;gap:8px;background:var(--acc-bg);border:1px solid rgba(16,89,193,.2);border-radius:100px;padding:6px 14px;font-size:13px;font-weight:500;color:var(--acc-t);}
+.band-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);}
+.chain{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 0 16px;}
+.chain-step{font-size:11px;color:var(--t2);font-family:var(--mono);}
+.chain-val{color:var(--t1);}
+.chain-arrow{font-size:10px;color:var(--t3);}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.price-col{background:var(--s2);border-radius:var(--r-md);overflow:hidden;}
+.pch{padding:10px 14px 8px;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--border);}
+.price-col.list .pch{color:var(--acc-s);background:var(--acc-bg);}
+.price-col.target .pch{color:var(--grn-s);background:var(--grn-bg);}
+.price-col.floor .pch{color:var(--amb-s);background:var(--amb-bg);}
+.price-col.custom .pch{color:var(--pur-s);background:var(--pur-bg);}
+.custom-hdr{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--pur-bg);border-bottom:1px solid var(--border);}
+.custom-hdr-lbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--pur-s);white-space:nowrap;}
+.cpi{width:100%;font-family:var(--mono);font-size:13px;font-weight:500;padding:3px 6px;border:1px solid rgba(124,58,237,.3);border-radius:5px;color:var(--pur);background:var(--surface);outline:none;-moz-appearance:textfield;flex:1;min-width:0;}
+.cpi::-webkit-inner-spin-button,.cpi::-webkit-outer-spin-button{-webkit-appearance:none;}
+.pcb{padding:14px;}
+.pr{margin-bottom:12px;}
+.pr:last-child{margin-bottom:0;}
+.prl{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:3px;}
+.prv{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--t1);line-height:1.2;}
+.prv.big{font-size:20px;}
+.prs{font-size:10px;color:var(--t3);margin-top:2px;}
+.price-col.list .prv.big{color:var(--acc-t);}
+.price-col.target .prv.big{color:var(--grn);}
+.price-col.floor .prv.big{color:var(--amb);}
+.price-col.custom .prv.big{color:var(--pur);}
+.cust-empty{padding:24px 14px;text-align:center;font-size:12px;color:var(--t3);line-height:1.5;}
+.note-display{margin-top:12px;padding:10px 14px;background:var(--s2);border-radius:var(--r-md);font-size:13px;color:var(--t2);line-height:1.6;border-left:3px solid var(--border-s);}
+.note-name{font-weight:500;color:var(--t1);margin-right:6px;}
+
+/* ---- actions ---- */
+.action-row{width:100%;max-width:780px;display:flex;gap:8px;margin-bottom:12px;}
+.action-btn{flex:1;padding:10px 0;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-s);border-radius:var(--r-md);cursor:pointer;background:var(--surface);color:var(--t2);transition:all .15s;}
+.action-btn:hover{background:var(--s2);color:var(--t1);}
+.action-btn:active{transform:scale(.98);}
+.action-btn.primary{background:var(--acc);border-color:var(--acc);color:#fff;}
+.action-btn.primary:hover{opacity:.9;}
+.action-btn.primary:disabled{opacity:.4;cursor:default;transform:none;}
+.footer{font-size:12px;color:var(--t3);text-align:center;margin-top:8px;max-width:780px;line-height:1.6;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--t1);color:var(--surface);font-size:13px;font-weight:500;padding:10px 20px;border-radius:100px;opacity:0;pointer-events:none;transition:all .2s;white-space:nowrap;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ---- CREDIT COUNTER (sticky) ---- */
+.credit-counter{position:sticky;top:12px;z-index:100;width:100%;max-width:780px;margin-bottom:16px;}
+.cc-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.cc-pool{font-size:13px;font-weight:500;color:var(--t1);}
+.cc-pool span{font-family:var(--mono);}
+.cc-segments{flex:1;display:flex;align-items:center;gap:10px;min-width:200px;}
+.cc-bar-wrap{flex:1;}
+.cc-bar-track{height:8px;background:var(--s2);border-radius:4px;overflow:hidden;display:flex;}
+.cc-seg-dc{height:100%;background:var(--tel);border-radius:4px 0 0 4px;transition:width .4s;}
+.cc-seg-cc{height:100%;background:var(--pur);transition:width .4s;}
+.cc-labels{display:flex;gap:12px;margin-top:4px;font-size:10px;color:var(--t2);}
+.cc-label-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;}
+.cc-remaining{font-family:var(--mono);font-size:14px;font-weight:500;white-space:nowrap;}
+.cc-remaining.ok{color:var(--grn);}
+.cc-remaining.warn{color:var(--amb);}
+.cc-remaining.over{color:var(--red);}
+.cc-rec{font-size:11px;color:var(--t2);white-space:nowrap;}
+.cc-rec strong{color:var(--acc);}
+.cc-rec.warn{color:var(--amb);}
+.cc-rec.over{color:var(--red);}
+.cc-no-pool{font-size:13px;color:var(--t3);font-style:italic;}
+
+/* ---- sub-tabs ---- */
+.sub-tab-nav{display:flex;gap:6px;margin-bottom:20px;}
+.sub-tab-btn{padding:8px 18px;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--border-s);border-radius:var(--r-md);cursor:pointer;background:var(--s2);color:var(--t2);transition:all .15s;position:relative;}
+.sub-tab-btn.active{background:var(--surface);border-color:var(--acc);color:var(--acc);}
+.sub-tab-btn .stb-badge{position:absolute;top:-6px;right:-6px;background:var(--amb);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:100px;}
+.sub-panel{display:none;}
+.sub-panel.active{display:block;}
+
+/* ---- department selector ---- */
+.dept-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.dept-btn{padding:10px 8px;font-family:var(--font);font-size:12px;font-weight:500;border:1px solid var(--border-s);border-radius:var(--r-md);cursor:pointer;background:var(--s2);color:var(--t2);text-align:center;transition:all .15s;line-height:1.3;}
+.dept-btn:hover{background:var(--surface);color:var(--t1);}
+.dept-btn.active{background:var(--tel-bg);border-color:var(--tel-s);color:var(--tel);}
+.dept-btn .dept-icon{display:block;font-size:16px;margin-bottom:3px;}
+
+/* ---- dept card ---- */
+.dept-card{background:var(--s2);border-radius:var(--r-lg);padding:18px 20px;margin-bottom:10px;}
+.dept-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.dept-card-name{font-size:15px;font-weight:500;color:var(--t1);}
+.dept-remove{font-size:12px;color:var(--t3);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:var(--r-md);}
+.dept-remove:hover{background:var(--border);color:var(--red);}
+.dept-toggles{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.dept-toggle{font-size:11px;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--border-s);background:var(--surface);color:var(--t2);cursor:pointer;transition:all .15s;}
+.dept-toggle.on.kb{background:var(--tel-bg);border-color:var(--tel-s);color:var(--tel);}
+.dept-toggle.on.anl{background:var(--red-bg);border-color:var(--red-s);color:var(--red);}
+.dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.dept-field label{display:block;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:5px;}
+.dept-field input[type=number]{font-family:var(--mono);font-size:16px;font-weight:500;padding:7px 10px;border:1px solid var(--border-s);border-radius:var(--r-md);color:var(--t1);background:var(--surface);outline:none;-moz-appearance:textfield;width:100%;transition:border-color .15s;}
+.dept-field input[type=number]:focus{border-color:var(--acc);}
+.dept-field input[type=number]::-webkit-inner-spin-button,.dept-field input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.dept-field select{font-family:var(--font);font-size:14px;font-weight:500;padding:7px 10px;border:1px solid var(--border-s);border-radius:var(--r-md);color:var(--t1);background:var(--surface);outline:none;cursor:pointer;width:100%;}
+.dept-section-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin:12px 0 8px;padding-top:12px;border-top:1px solid var(--border);}
+.dept-cost-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.dept-cost-label{font-size:11px;color:var(--t2);}
+.dept-cost-value{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--t1);}
+
+/* ---- discovery ---- */
+.discovery-wrap{margin-top:14px;}
+.discovery-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:9px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);user-select:none;}
+.discovery-toggle-label{font-size:12px;font-weight:500;color:var(--t2);display:flex;align-items:center;gap:8px;}
+.disc-arrow{font-size:11px;color:var(--t3);transition:transform .2s;}
+.disc-arrow.open{transform:rotate(180deg);}
+.discovery-body{display:none;padding:12px 0 0;}
+.disc-section{margin-bottom:14px;}
+.disc-section:last-child{margin-bottom:0;}
+.disc-section-label{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
+.disc-q{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--s2);border-radius:var(--r-md);margin-bottom:6px;font-size:13px;color:var(--t1);line-height:1.5;}
+.disc-q:last-child{margin-bottom:0;}
+.disc-q-num{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--t3);margin-top:2px;flex-shrink:0;}
+
+/* ---- model cards (CC) ---- */
+.model-category{margin-bottom:20px;}
+.model-category-header{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.model-card{background:var(--s2);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+.model-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.model-name{font-size:13px;font-weight:500;color:var(--t1);line-height:1.3;}
+.model-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;white-space:nowrap;flex-shrink:0;}
+.badge-native{background:var(--acc-bg);color:var(--acc-s);}
+.badge-partner{background:var(--pur-bg);color:var(--pur-s);}
+.badge-video{background:var(--amb-bg);color:var(--amb-s);}
+.badge-audio{background:var(--grn-bg);color:var(--grn-s);}
+.model-stat{display:flex;align-items:baseline;gap:6px;}
+.model-gen-count{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--t1);line-height:1;}
+.model-gen-label{font-size:12px;color:var(--t2);}
+.model-gen-sub{font-size:11px;color:var(--t3);}
+.pool-bar-wrap{margin-top:6px;}
+.pool-bar-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.pool-bar-fill{height:100%;border-radius:2px;background:var(--acc);transition:width .3s;}
+.pool-bar-fill.warn{background:var(--amb);}
+.pool-bar-fill.danger{background:#dc2626;}
+.pool-bar-label{font-size:10px;color:var(--t3);margin-top:3px;}
+
+/* ---- stepper ---- */
+.stepper{display:flex;align-items:center;border:1px solid var(--border-s);border-radius:var(--r-md);overflow:hidden;}
+.stepper-btn{width:36px;height:36px;font-size:18px;border:none;background:var(--s2);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stepper-btn:hover{background:var(--border);}
+.stepper-val{font-family:var(--mono);font-size:15px;font-weight:500;padding:0 14px;min-width:56px;text-align:center;color:var(--t1);border-left:1px solid var(--border-s);border-right:1px solid var(--border-s);height:36px;display:flex;align-items:center;justify-content:center;}
+.control-label{font-size:12px;color:var(--t2);white-space:nowrap;}
+.controls-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+
+/* ---- estimator results ---- */
+.est-totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.est-tile{border-radius:var(--r-md);padding:14px 16px;}
+.est-tile.kb{background:var(--tel-bg);}
+.est-tile.anl{background:var(--red-bg);}
+.est-tile.total{background:var(--s2);}
+.est-tile-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.est-tile.kb .est-tile-label{color:var(--tel-s);}
+.est-tile.anl .est-tile-label{color:var(--red-s);}
+.est-tile.total .est-tile-label{color:var(--t3);}
+.est-tile-value{font-family:var(--mono);font-size:20px;font-weight:500;}
+.est-tile.kb .est-tile-value{color:var(--tel);}
+.est-tile.anl .est-tile-value{color:var(--red);}
+.est-tile.total .est-tile-value{font-size:24px;color:var(--t1);}
+.est-tile-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+
+/* ---- setup buffer ---- */
+.setup-buf{background:var(--s2);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:12px;}
+
+/* ---- compare bar ---- */
+.compare-bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+.compare-ok{background:var(--grn);}
+.compare-warn{background:var(--amb);}
+.compare-over{background:#dc2626;}
+
+/* ---- priority prompt ---- */
+.priority-prompt{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px;margin-top:16px;}
+.priority-prompt-title{font-size:13px;font-weight:500;color:var(--t1);margin-bottom:8px;}
+.priority-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.priority-step:last-child{border-bottom:none;}
+.priority-num{width:22px;height:22px;border-radius:50%;background:var(--acc-bg);color:var(--acc-t);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.priority-text{font-size:13px;color:var(--t2);line-height:1.5;}
+.priority-text strong{color:var(--t1);}
+
+/* ---- no credits state ---- */
+.no-credits-state{padding:40px 24px;text-align:center;}
+.no-credits-state .icon{font-size:32px;margin-bottom:12px;}
+.no-credits-state p{font-size:14px;color:var(--t3);line-height:1.6;}
+.no-credits-state strong{color:var(--t2);}
+
+/* ---- rate ref ---- */
+.rate-ref{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.rate-tile{background:var(--s2);border-radius:var(--r-md);padding:10px 12px;text-align:center;}
+.rate-tile-label{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:3px;}
+.rate-tile-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--t1);}
+.rate-tile-sub{font-size:10px;color:var(--t3);}
+
+/* ---- go to CC prompt ---- */
+.go-cc-prompt{background:var(--pur-bg);border:1px solid rgba(107,33,168,.2);border-radius:var(--r-lg);padding:16px 20px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.go-cc-text{font-size:13px;color:var(--pur);font-weight:500;}
+.go-cc-text span{font-size:12px;font-weight:400;color:var(--pur-s);display:block;margin-top:2px;}
+.go-cc-btn{padding:8px 18px;font-family:var(--font);font-size:13px;font-weight:500;border:1px solid var(--pur);border-radius:var(--r-md);background:var(--pur);color:#fff;cursor:pointer;white-space:nowrap;}
+.go-cc-btn:hover{opacity:.9;}
+
+@media(max-width:640px){.pricing-grid{grid-template-columns:1fr 1fr;}.model-grid{grid-template-columns:1fr;}.bundle-grid{grid-template-columns:1fr 1fr;}.dept-selector{grid-template-columns:repeat(4,1fr);}.dept-grid{grid-template-columns:1fr 1fr;}.rate-ref{grid-template-columns:1fr 1fr;}}
+@media(max-width:380px){.pricing-grid{grid-template-columns:1fr;}.dept-grid{grid-template-columns:1fr;}.dept-selector{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo-row">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+    <span class="logo-text">Adobe Corporate Sales</span>
+  </div>
+  <h1>Shared Credits <span>Calculator</span></h1>
+  <p class="subtitle">Annual credit pool pricing and value visualization across Creative Cloud and Document Cloud.</p>
+</div>
+
+<!-- Main tab nav -->
+<div class="tab-nav-wrap">
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabBtn1" onclick="switchTab(1)">
+      <span class="tl">Part 1 — Annual Pricing</span>
+      <span class="td">Credits, dollars, or bundles to SKU</span>
+    </button>
+    <button class="tab-btn" id="tabBtn2" onclick="switchTab(2)">
+      <span class="tl">Part 2 — What It Gets You</span>
+      <span class="td">Size DC and CC usage against your pool</span>
+      <span class="tn" id="tab2Notice" style="display:none;">&#9679; Credits ready</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===== TAB 1 ===== -->
+<div class="tab-panel active" id="panel1">
+
+  <div class="card">
+    <div class="card-label">Input mode</div>
+    <div class="mode-toggle" style="margin-bottom:16px;">
+      <button class="mode-btn" id="modeCustom" onclick="setInputMode('custom')">
+        <span class="ml">Custom</span>
+        <span class="md">Enter credits or dollars</span>
+      </button>
+      <button class="mode-btn active" id="modeBundle" onclick="setInputMode('bundle')">
+        <span class="ml">Bundle</span>
+        <span class="md">Pre-negotiated credit packs</span>
+      </button>
+    </div>
+
+    <!-- Custom mode -->
+    <div id="customInputWrap" style="display:none;">
+      <div class="mode-toggle" style="margin-bottom:16px;">
+        <button class="mode-btn active" id="modeCredits" onclick="setMode('credits')">
+          <span class="ml">Credits to SKU</span>
+          <span class="md">I know the credit count</span>
+        </button>
+        <button class="mode-btn" id="modeDollars" onclick="setMode('dollars')">
+          <span class="ml">Dollars to SKU</span>
+          <span class="md">I know the dollar amount</span>
+        </button>
+      </div>
+      <div id="creditsInputSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="card-label" style="margin-bottom:0;">Gen credits needed</div>
+          <select id="creditPeriod" onchange="calc()" style="font-size:12px;padding:5px 10px;">
+            <option value="annual">Per year</option>
+            <option value="monthly">Per month x12</option>
+          </select>
+        </div>
+        <div class="input-row">
+          <input type="number" id="creditInput" placeholder="e.g. 533333" min="0" step="1" oninput="calc()"/>
+          <span class="unit-tag" id="creditUnitTag">gen credits / yr</span>
+        </div>
+        <div id="monthlyNote" style="display:none;font-size:11px;color:var(--t3);margin-top:6px;font-family:var(--mono);"></div>
+      </div>
+      <div id="dollarsInputSection" style="display:none;">
+        <div class="card-label">Annual dollar amount</div>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="number" id="dollarInput" placeholder="e.g. 4000" min="0" step="1" oninput="calc()"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bundle mode -->
+    <div id="bundleInputWrap">
+      <div class="card-label">Select a bundle</div>
+      <div class="bundle-grid" id="bundleGrid">
+        <div class="bundle-card" id="bEntry" onclick="selectBundle('entry')">
+          <div class="bundle-name">Entry</div>
+          <div class="bundle-price">$10,000</div>
+          <div class="bundle-credits">2M credits · 100 units</div>
+        </div>
+        <div class="bundle-card" id="bDept" onclick="selectBundle('dept')">
+          <div class="bundle-name">Departmental</div>
+          <div class="bundle-price">$25,000</div>
+          <div class="bundle-credits">5M credits · 250 units</div>
+        </div>
+        <div class="bundle-card" id="bScale" onclick="selectBundle('scale')">
+          <div class="bundle-name">Scale</div>
+          <div class="bundle-price">$50,000</div>
+          <div class="bundle-credits">10M credits · 500 units</div>
+        </div>
+        <div class="bundle-card" id="bEnt" onclick="selectBundle('enterprise')">
+          <div class="bundle-name">Enterprise</div>
+          <div class="bundle-price">$100,000</div>
+          <div class="bundle-credits">20M credits · 1,000 units</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:8px;">Wizard entry = quantity (thousands of operations) x $100 per unit at band-1 floor. 20 credits = 1 operation.</div>
+      <div id="bundleNextBtn" style="display:none;margin-top:16px;">
+        <button onclick="switchTab(2)" style="width:100%;padding:13px 0;font-family:var(--font);font-size:14px;font-weight:500;background:var(--acc);color:#fff;border:none;border-radius:var(--r-md);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s;" onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+          Step 2 — Size your usage <span style="font-size:18px;line-height:1;">&#8594;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Account / notes</div>
+    <textarea id="noteInput" placeholder="Account name, opportunity details, any context..." oninput="calc()"></textarea>
+  </div>
+
+  <div class="results-card">
+    <div class="ri">
+      <div class="zero-state" id="zeroState1">Enter a credit count, dollar amount, or select a bundle above.</div>
+      <div id="calcResults1" style="display:none;">
+        <div class="band-row"><div class="band-badge"><span class="band-dot"></span><span id="bandLabel">--</span></div></div>
+        <div class="chain" id="inputChain"></div>
+        <div class="pricing-grid">
+          <div class="price-col list">
+            <div class="pch">List</div>
+            <div class="pcb">
+              <div class="pr"><div class="prl">Unit price</div><div class="prv big" id="listPrice">--</div><div class="prs" id="listOpRate">--</div></div>
+              <div class="pr"><div class="prl">SKU qty</div><div class="prv" id="listSku">--</div><div class="prs">units</div></div>
+              <div class="pr"><div class="prl">Billed total</div><div class="prv" id="listBilled">--</div></div>
+              <div class="pr"><div class="prl">Gen credits</div><div class="prv" id="listCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col target">
+            <div class="pch">Target</div>
+            <div class="pcb">
+              <div class="pr"><div class="prl">Unit price</div><div class="prv big" id="targetPrice">--</div><div class="prs" id="targetOpRate">--</div></div>
+              <div class="pr"><div class="prl">SKU qty</div><div class="prv" id="targetSku">--</div><div class="prs">units</div></div>
+              <div class="pr"><div class="prl">Billed total</div><div class="prv" id="targetBilled">--</div></div>
+              <div class="pr"><div class="prl">Gen credits</div><div class="prv" id="targetCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col floor">
+            <div class="pch">Floor</div>
+            <div class="pcb">
+              <div class="pr"><div class="prl">Unit price</div><div class="prv big" id="floorPrice">--</div><div class="prs" id="floorOpRate">--</div></div>
+              <div class="pr"><div class="prl">SKU qty</div><div class="prv" id="floorSku">--</div><div class="prs">units</div></div>
+              <div class="pr"><div class="prl">Billed total</div><div class="prv" id="floorBilled">--</div></div>
+              <div class="pr"><div class="prl">Gen credits</div><div class="prv" id="floorCredits">--</div></div>
+            </div>
+          </div>
+          <div class="price-col custom">
+            <div class="custom-hdr">
+              <span class="custom-hdr-lbl">Custom</span>
+              <span style="font-size:11px;color:var(--pur-s);font-weight:500;">$</span>
+              <input type="number" class="cpi" id="customPriceInput" placeholder="e.g. 136" min="1" step="1" oninput="calc()"/>
+            </div>
+            <div class="pcb" id="customBody"><div class="cust-empty">Enter a unit price to see custom tier results.</div></div>
+          </div>
+        </div>
+        <div id="noteDisplay1" style="display:none;" class="note-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="action-btn" onclick="resetAll()">Clear all</button>
+    <button class="action-btn primary" id="copyBtn" onclick="copySku()" disabled>Copy List SKU qty</button>
+  </div>
+  <div class="footer">Volume bands: 1-1,000 / 1,001-2,500 / 2,501-5,000 / 5,001-10,000 units. 1 unit = 1,000 ops. Op rate = unit price / 1,000.</div>
+</div>
+
+<!-- ===== TAB 2 ===== -->
+<div class="tab-panel" id="panel2">
+
+  <!-- Running credit counter -->
+  <div class="credit-counter">
+    <div class="cc-inner" id="ccInner">
+      <div class="cc-no-pool" id="ccNoPool">Enter a credit pool in Part 1 to start sizing.</div>
+      <div id="ccFull" style="display:none;width:100%;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div class="cc-pool">Pool: <span id="ccPoolVal">--</span> credits</div>
+          <div class="cc-segments">
+            <div style="flex:1;">
+              <div class="cc-bar-track">
+                <div class="cc-seg-dc" id="ccBarDC" style="width:0%"></div>
+                <div class="cc-seg-cc" id="ccBarCC" style="width:0%"></div>
+              </div>
+              <div class="cc-labels">
+                <span><span class="cc-label-dot" style="background:var(--tel);"></span>DC <span id="ccDCVal">0</span></span>
+                <span><span class="cc-label-dot" style="background:var(--pur);"></span>CC <span id="ccCCVal">0</span></span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="cc-remaining" id="ccRemaining">--</div>
+            <div style="font-size:10px;color:var(--t3);">remaining</div>
+          </div>
+          <div class="cc-rec" id="ccRec"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-card">
+    <div class="ri">
+      <div id="noCreditsState2" class="no-credits-state">
+        <div class="icon">&#9654;</div>
+        <p>Enter your annual credit pool in <strong>Part 1</strong> first, then size your DC and CC usage here.</p>
+      </div>
+
+      <div id="valueContent2" style="display:none;">
+
+        <!-- Sub-tabs -->
+        <div class="sub-tab-nav">
+          <button class="sub-tab-btn active" id="subDC" onclick="switchSubTab('dc')">&#9632; Document Cloud</button>
+          <button class="sub-tab-btn" id="subCC" onclick="switchSubTab('cc')">&#9733; Add Creative Cloud</button>
+        </div>
+
+        <!-- DC sub-panel -->
+        <div class="sub-panel active" id="subPanelDC">
+
+          <div style="margin-bottom:16px;">
+            <div class="card-label" style="margin-bottom:8px;">Start with a department</div>
+            <div class="dept-selector" id="deptSelector">
+              <button class="dept-btn" onclick="addDeptFromTemplate('procurement')"><span class="dept-icon">&#128196;</span>Procurement</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('finance')"><span class="dept-icon">&#128200;</span>Finance</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('hr')"><span class="dept-icon">&#128101;</span>HR / People Ops</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('sales')"><span class="dept-icon">&#128170;</span>Sales / Sales Ops</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('support')"><span class="dept-icon">&#127381;</span>Customer Support</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('marketing')"><span class="dept-icon">&#127760;</span>Marketing / CX</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('operations')"><span class="dept-icon">&#9881;</span>Operations</button>
+              <button class="dept-btn" onclick="addDeptFromTemplate('custom')"><span class="dept-icon">&#43;</span>Custom</button>
+            </div>
+          </div>
+
+          <div class="rate-ref">
+            <div class="rate-tile"><div class="rate-tile-label">Doc Ingestion</div><div class="rate-tile-value">150</div><div class="rate-tile-sub">cr / doc</div></div>
+            <div class="rate-tile"><div class="rate-tile-label">KB Query</div><div class="rate-tile-value">50</div><div class="rate-tile-sub">cr / query</div></div>
+            <div class="rate-tile"><div class="rate-tile-label">Extraction</div><div class="rate-tile-value">50</div><div class="rate-tile-sub">cr / doc (strict / interp)</div></div>
+            <div class="rate-tile"><div class="rate-tile-label">Table Extraction</div><div class="rate-tile-value">300</div><div class="rate-tile-sub">cr / doc</div></div>
+          </div>
+
+          <!-- Analyzer setup buffer -->
+          <div class="setup-buf" style="margin-bottom:12px;">
+            <div style="font-size:12px;font-weight:500;color:var(--t2);margin-bottom:10px;">Analyzer setup buffer <span style="font-size:11px;font-weight:400;color:var(--t3);">one-time finetuning cost</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="dept-field"><label>Sample docs</label><input type="number" id="anlSetupDocs" value="100" min="0" step="1" oninput="calcEst()"/><div style="font-size:10px;color:var(--t3);margin-top:3px;">Default: 100</div></div>
+              <div class="dept-field"><label>Attributes / sample doc</label><input type="number" id="anlSetupAttrs" value="35" min="0" step="1" oninput="calcEst()"/><div style="font-size:10px;color:var(--t3);margin-top:3px;">Default: 35</div></div>
+            </div>
+          </div>
+
+          <div id="deptList"></div>
+
+          <!-- Est results -->
+          <div id="estZero" style="text-align:center;padding:16px 0;font-size:13px;color:var(--t3);">Add a department above to start sizing.</div>
+          <div id="estContent" style="display:none;">
+            <div class="est-totals">
+              <div class="est-tile kb"><div class="est-tile-label">KB Total</div><div class="est-tile-value" id="estKbTotal">--</div><div class="est-tile-sub">annual credits</div></div>
+              <div class="est-tile anl"><div class="est-tile-label">Analyzer Total</div><div class="est-tile-value" id="estAnlTotal">--</div><div class="est-tile-sub">annual credits</div></div>
+              <div class="est-tile total"><div class="est-tile-label">DC Total</div><div class="est-tile-value" id="estGrandTotal">--</div><div class="est-tile-sub">annual credits needed</div></div>
+            </div>
+            <div id="deptBreakdown" style="margin-bottom:12px;"></div>
+            <div id="poolComparison"></div>
+
+            <!-- Go to CC prompt -->
+            <div class="go-cc-prompt" id="goCCPrompt" style="display:none;">
+              <div class="go-cc-text">
+                See what the remaining credits get your creative teams
+                <span id="goCCRemText"></span>
+              </div>
+              <button class="go-cc-btn" onclick="switchSubTab('cc')">Add Creative Cloud</button>
+            </div>
+
+            <!-- Priority prompt -->
+            <div id="priorityPrompt" style="display:none;" class="priority-prompt">
+              <div class="priority-prompt-title">Where to start the conversation</div>
+              <div id="prioritySteps"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CC sub-panel -->
+        <div class="sub-panel" id="subPanelCC">
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+              <div class="pool-pill" id="ccPoolPill" style="display:inline-flex;align-items:center;gap:8px;background:var(--pur-bg);border:1px solid rgba(107,33,168,.2);border-radius:100px;padding:8px 16px;font-size:13px;font-weight:500;color:var(--pur);"><span style="width:8px;height:8px;border-radius:50%;background:var(--pur);display:inline-block;"></span><span id="ccAvailLabel">-- credits available for CC</span></div>
+              <div class="controls-row">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="control-label">Users:</span>
+                  <div class="stepper"><button class="stepper-btn" onclick="adjustUsers(-10)">&#8722;</button><span class="stepper-val" id="userCountDisp">50</span><button class="stepper-btn" onclick="adjustUsers(10)">+</button></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="control-label">Video secs:</span>
+                  <div class="stepper"><button class="stepper-btn" onclick="adjustVidSecs(-5)">&#8722;</button><span class="stepper-val" id="vidSecsDisp">30</span><button class="stepper-btn" onclick="adjustVidSecs(5)">+</button></div>
+                </div>
+              </div>
+            </div>
+            <div id="ccOverWarning" style="display:none;padding:10px 14px;background:var(--amb-bg);border-radius:var(--r-md);font-size:13px;color:var(--amb);margin-bottom:12px;"></div>
+          </div>
+          <div class="model-category"><div class="model-category-header">&#9733; Firefly Native Models</div><div class="model-grid" id="nativeGrid"></div></div>
+          <div class="model-category"><div class="model-category-header">&#9670; Partner Image Models</div><div class="model-grid" id="partnerImageGrid"></div></div>
+          <div class="model-category"><div class="model-category-header">&#9654; Partner Video Models — per <span id="vidSecsLabel">30</span>-sec generation</div><div class="model-grid" id="partnerVideoGrid"></div></div>
+          <div class="model-category" style="margin-bottom:0;"><div class="model-category-header">&#9834; Audio</div><div class="model-grid" id="audioGrid"></div></div>
+
+          <!-- CC discovery -->
+          <div class="discovery-wrap" style="margin-top:24px;">
+            <div class="discovery-toggle" onclick="toggleDisc('ccDisc')">
+              <span class="discovery-toggle-label">&#128172; Discovery questions — Creative Cloud</span>
+              <span class="disc-arrow" id="ccDiscArrow">&#9660;</span>
+            </div>
+            <div class="discovery-body" id="ccDisc">
+              <div class="disc-section">
+                <div class="disc-section-label">Usage and volume</div>
+                <div class="disc-q"><span class="disc-q-num">1.</span>What types of creative assets does your team produce most often — images, video, or a mix?</div>
+                <div class="disc-q"><span class="disc-q-num">2.</span>How many people are actively creating content today, and what tools are they using?</div>
+                <div class="disc-q"><span class="disc-q-num">3.</span>How many assets does your team typically produce in a month?</div>
+                <div class="disc-q"><span class="disc-q-num">4.</span>Are there seasonal spikes in creative output — campaign launches, product releases?</div>
+                <div class="disc-q"><span class="disc-q-num">5.</span>How many iterations does a typical asset go through before approval?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Video</div>
+                <div class="disc-q"><span class="disc-q-num">6.</span>Is video generation something your team is actively doing or further out on the roadmap?</div>
+                <div class="disc-q"><span class="disc-q-num">7.</span>What formats are you targeting — short-form social, long-form, internal communications?</div>
+                <div class="disc-q"><span class="disc-q-num">8.</span>What resolution and quality standard does your brand require for video output?</div>
+              </div>
+              <div class="disc-section">
+                <div class="disc-section-label">Scale</div>
+                <div class="disc-q"><span class="disc-q-num">9.</span>How do you expect AI-assisted creation to change your asset volume over the next year?</div>
+                <div class="disc-q"><span class="disc-q-num">10.</span>Is this a single team use case or multiple departments drawing from the same credit pool?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="footer" id="p2Footer">Credits sourced from Adobe helpx and DC metering policy. Query rates: Low = 5/mo, Mid = 15/mo, High = 30/mo.</div>
+</div>
+
+<div class="toast" id="toast">List SKU qty copied</div>
+
+<script>
+// ===== DATA =====
+var BANDS=[
+  {label:'1 – 1,000 units',min:1,max:1000,list:150,target:125,floor:100},
+  {label:'1,001 – 2,500 units',min:1001,max:2500,list:135,target:113,floor:90},
+  {label:'2,501 – 5,000 units',min:2501,max:5000,list:120,target:100,floor:80},
+  {label:'5,001 – 10,000 units',min:5001,max:10000,list:105,target:88,floor:70}
+];
+
+var BUNDLES={
+  entry:{name:'Entry',price:10000,credits:2000000,units:100},
+  dept:{name:'Departmental',price:25000,credits:5000000,units:250},
+  scale:{name:'Scale',price:50000,credits:10000000,units:500},
+  enterprise:{name:'Enterprise',price:100000,credits:20000000,units:1000}
+};
+
+var CC_MODELS={
+  native:[
+    {name:'Firefly Image 5',badge:'native',creditsPerGen:10,type:'image'},
+    {name:'Firefly Image 4 Ultra',badge:'native',creditsPerGen:20,type:'image'}
+  ],
+  partnerImage:[
+    {name:'Gemini 2.5 Flash',badge:'partner',creditsPerGen:10,type:'image'},
+    {name:'GPT Image 1.5',badge:'partner',creditsPerGen:20,type:'image'},
+    {name:'GPT Image 2 (med res)',badge:'partner',creditsPerGen:20,type:'image'},
+    {name:'FLUX.2',badge:'partner',creditsPerGen:20,type:'image'}
+  ],
+  partnerVideo:[
+    {name:'Runway Gen-4.5',badge:'video',creditsPerSec:40,type:'video'},
+    {name:'Luma Ray3 720p',badge:'video',creditsPerSec:100,type:'video'},
+    {name:'Kling 3.0 1080p+audio',badge:'video',creditsPerSec:35,type:'video'},
+    {name:'Veo 3.1 720p',badge:'video',creditsPerSec:50,type:'video'}
+  ],
+  audio:[{name:'ElevenLabs Speech',badge:'audio',creditsPerGen:15,type:'audio',unit:'per 1k chars'}]
+};
+
+// Department templates
+var DEPT_TEMPLATES={
+  procurement:{
+    name:'Procurement',useKB:false,useAnl:true,
+    kbDocs:0,kbUsers:0,kbNonStudio:0,kbQueryRate:'Mid',
+    anlDocs:3000,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{
+      kb:[],
+      anl:[
+        {section:'Document landscape',qs:['How many vendor contracts and agreements flow through your team in a year?','Are these documents fairly consistent in structure, or do they vary across vendors and agreement types?','What specific fields are most critical to extract — renewal dates, notice periods, liability caps, auto-renew clauses?']},
+        {section:'Process and pain',qs:['How does your team track contract obligations today — spreadsheets, a CLM, manually?','What happens when a renewal window gets missed? Has that cost the organization?','How long does a manual contract review take per document?']},
+        {section:'Scale and rollout',qs:['Would you want to process your full historical contract base upfront, or start with new agreements coming in each month?','Who owns the ingestion and setup process internally — procurement ops, legal, IT?','Are there compliance requirements around where contract data can be processed?']}
+      ]
+    }
+  },
+  finance:{
+    name:'Finance',useKB:false,useAnl:true,
+    kbDocs:0,kbUsers:0,kbNonStudio:0,kbQueryRate:'Mid',
+    anlDocs:7000,anlAttrRate:'High',anlExtType:'interpretive',
+    disc:{
+      kb:[],
+      anl:[
+        {section:'Document landscape',qs:['How many contracts does your team review during each close cycle?','What are the key revenue terms you need to extract — performance obligations, variable consideration, contract modifications?','Are these primarily customer contracts, or also vendor and partner agreements?']},
+        {section:'Process and pain',qs:['What does your current ASC 606 review process look like — how many people, how long per close?','Are you sampling contracts today, or reviewing the full population? What drives that decision?','How often do auditors ask for documentation on specific contract terms?']},
+        {section:'Scale and rollout',qs:['How frequently do contracts get amended or modified — how often would re-runs be needed?','Who would own the setup and ongoing configuration — FP&A, accounting ops, IT?','Is there a specific close cycle coming up that would make a pilot timely?']}
+      ]
+    }
+  },
+  hr:{
+    name:'HR / People Ops',useKB:true,useAnl:false,
+    kbDocs:500,kbUsers:200,kbNonStudio:150,kbQueryRate:'Mid',
+    anlDocs:0,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{
+      kb:[
+        {section:'Document landscape',qs:['What types of HR documents would go into the Knowledge Base — policies, benefits guides, employee handbooks, PTO rules?','How often do these documents get updated? Is there a major revision cycle, like open enrollment?','How many employees would be querying this — the full org, or a specific population?']},
+        {section:'Process and pain',qs:['How do employees get answers to benefits and policy questions today — email, Slack, a ticketing system?','How many repeat questions does your HR team field in a week? What are the most common ones?','Is there an open enrollment period or compliance deadline that creates a spike in questions?']},
+        {section:'Scale and rollout',qs:['Would this be an internal chatbot, a Slack integration, or accessed through a 3rd-party tool?','Who owns the knowledge base setup — HR ops, IT, or a shared services team?','Are there any documents that cannot be ingested due to sensitivity or legal restrictions?']}
+      ],
+      anl:[]
+    }
+  },
+  sales:{
+    name:'Sales / Sales Ops',useKB:true,useAnl:false,
+    kbDocs:300,kbUsers:100,kbNonStudio:80,kbQueryRate:'High',
+    anlDocs:0,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{
+      kb:[
+        {section:'Document landscape',qs:['What content would you put into the Knowledge Base — product docs, pricing guides, competitive battlecards, past proposals?','How often does that content change? Is there a regular refresh cycle?','How many reps would be querying this, and through what surface — Slack, a CRM integration, a web tool?']},
+        {section:'Process and pain',qs:['When a rep has a question during meeting prep today, who do they ask? How long does it take to get an answer?','How often do reps ping subject matter experts for answers they could find in documentation?','Is deal quality or win rate affected when reps don\'t have good answers to competitive or technical questions?']},
+        {section:'Scale and rollout',qs:['Would this sit in your sales enablement tool, your CRM, or Slack?','Who owns the content that would go in — sales ops, product marketing, enablement?','Is there a QBR or sales kickoff that would make a good target for rollout?']}
+      ],
+      anl:[]
+    }
+  },
+  support:{
+    name:'Customer Support',useKB:true,useAnl:false,
+    kbDocs:1000,kbUsers:150,kbNonStudio:120,kbQueryRate:'High',
+    anlDocs:0,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{
+      kb:[
+        {section:'Document landscape',qs:['What documents would agents query most — product manuals, troubleshooting guides, past ticket resolutions?','How often does the product or service change in ways that require knowledge base updates?','Would this be agent-assist only, or also a customer-facing self-serve option?']},
+        {section:'Process and pain',qs:['What is your current average handle time, and how much of that is agents searching for answers?','How many tickets per month require escalation because the front-line agent couldn\'t find an answer?','What does first-contact resolution look like today, and what\'s the target?']},
+        {section:'Scale and rollout',qs:['How many agents would use this, and are they distributed across multiple locations or time zones?','Is there an integration requirement with your ticketing system — Zendesk, ServiceNow, Salesforce?','What\'s the ramp time for a new agent today, and how much of that is learning where to find answers?']}
+      ],
+      anl:[]
+    }
+  },
+  marketing:{
+    name:'Marketing / CX',useKB:true,useAnl:false,
+    kbDocs:800,kbUsers:300,kbNonStudio:250,kbQueryRate:'High',
+    anlDocs:0,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{
+      kb:[
+        {section:'Document landscape',qs:['What content would power the chatbot — product pages, FAQs, case studies, pricing, support docs?','Is this primarily for prospects, customers, or both?','How much traffic does your website or support portal see in a month?']},
+        {section:'Process and pain',qs:['How are website visitors getting answers to product and pricing questions today — live chat, forms, phone?','What percentage of inbound support volume could be deflected if answers were available instantly?','Are there specific points in the buyer journey where visitors are dropping off due to unanswered questions?']},
+        {section:'Scale and rollout',qs:['Would this be embedded on the public website, a customer portal, or both?','Who owns the content that would feed it — marketing, product, support?','Is there a launch, campaign, or product release that would create urgency around having this live?']}
+      ],
+      anl:[]
+    }
+  },
+  operations:{
+    name:'Operations',useKB:false,useAnl:true,
+    kbDocs:0,kbUsers:0,kbNonStudio:0,kbQueryRate:'Mid',
+    anlDocs:12000,anlAttrRate:'High',anlExtType:'table',
+    disc:{
+      kb:[],
+      anl:[
+        {section:'Document landscape',qs:['What types of operational documents arrive regularly — loan packets, claims, invoices, delivery confirmations?','How many documents arrive per month, and how many fields do you need to extract from each?','Are these structured forms, semi-structured documents, or free-form text?']},
+        {section:'Process and pain',qs:['How is data extracted from these documents today — manual keying, OCR, offshore processing?','What is the error rate on manual extraction, and what does a keying error cost you?','How many FTEs are currently dedicated to document processing, and where is their time going?']},
+        {section:'Scale and rollout',qs:['Is there a target turnaround time you need to hit per document — hours, same day, end of batch?','Would extracted data need to flow into a downstream system — ERP, CRM, database — automatically?','Who owns the workflow design — ops, IT, a shared services team?']}
+      ]
+    }
+  },
+  custom:{
+    name:'Custom Department',useKB:true,useAnl:false,
+    kbDocs:500,kbUsers:50,kbNonStudio:30,kbQueryRate:'Mid',
+    anlDocs:0,anlAttrRate:'Mid',anlExtType:'strict',
+    disc:{kb:[{section:'Discovery',qs:['What types of documents would this team work with most?','How many users would need access?','What is the primary use case — querying existing content, extracting data, or both?']}],anl:[]}
+  }
+};
+
+var QUERY_RATES={Low:5,Mid:15,High:30};
+var ATTR_RATES={Low:10,Mid:25,High:100};
+
+// ===== STATE =====
+var inputMode='bundle',mode='credits',lastListSku=null;
+var annualCredits=0,dcCredits=0,ccCredits=0;
+var users=50,vidSecs=30,subTab='dc';
+var depts=[],deptCounter=0;
+var selectedBundle=null;
+
+// ===== HELPERS =====
+function getBand(q){for(var i=0;i<BANDS.length;i++){if(q>=BANDS[i].min&&q<=BANDS[i].max)return BANDS[i];}return BANDS[BANDS.length-1];}
+function skuFromCredits(c){return Math.ceil(c/20000);}
+function skuFromDollars(d,p){return Math.ceil(d/p);}
+function creditsFromSku(s){return s*20000;}
+function resolveFromCredits(c){var s=skuFromCredits(c);return{band:getBand(s),sku:s};}
+function resolveFromDollars(d){var s=Math.ceil(d/BANDS[0].list);for(var i=0;i<4;i++){var b=getBand(s);s=Math.ceil(d/b.list);}return{band:getBand(s),sku:s};}
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function fmtd(n){return'$'+Math.round(n).toLocaleString('en-US');}
+function fmtRate(p){return'$'+(p/1000).toFixed(3)+' / op';}
+function esc(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function formatGens(n){if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';if(n>=10)return Math.round(n).toLocaleString('en-US');if(n>=1)return n.toFixed(1);return n.toFixed(2);}
+
+// ===== BUNDLE RECOMMEND =====
+function recommendBundle(credits){
+  if(credits<=2000000)return'Entry bundle ($10K, 2M credits)';
+  if(credits<=5000000)return'Departmental bundle ($25K, 5M credits)';
+  if(credits<=10000000)return'Scale bundle ($50K, 10M credits)';
+  if(credits<=20000000)return'Enterprise bundle ($100K, 20M credits)';
+  return'multiple bundles or a custom arrangement';
+}
+
+// ===== CREDIT COUNTER =====
+function updateCounter(){
+  var has=annualCredits>0;
+  document.getElementById('ccNoPool').style.display=has?'none':'block';
+  document.getElementById('ccFull').style.display=has?'block':'none';
+  if(!has)return;
+  var total=annualCredits,dc=dcCredits,cc=ccCredits;
+  var used=dc+cc,remaining=total-used;
+  var dcPct=Math.min(100,(dc/total)*100);
+  var ccPct=Math.min(100,(cc/total)*100);
+  document.getElementById('ccPoolVal').textContent=fmt(total);
+  document.getElementById('ccBarDC').style.width=dcPct+'%';
+  document.getElementById('ccBarCC').style.width=Math.min(ccPct,100-dcPct)+'%';
+  document.getElementById('ccDCVal').textContent=fmt(dc);
+  document.getElementById('ccCCVal').textContent=fmt(cc);
+  var remEl=document.getElementById('ccRemaining');
+  remEl.textContent=remaining>=0?fmt(remaining):'-'+fmt(Math.abs(remaining));
+  remEl.className='cc-remaining'+(remaining<0?' over':remaining/total<0.15?' warn':' ok');
+  var recEl=document.getElementById('ccRec');
+  var totalNeeded=dc+cc;
+  if(totalNeeded>0){
+    var rec=recommendBundle(totalNeeded);
+    recEl.className='cc-rec'+(remaining<0?' over':remaining/total<0.15?' warn':'');
+    recEl.innerHTML=remaining<0?'Suggest: <strong>'+rec+'</strong>':remaining/total<0.15?'Getting tight — consider <strong>'+rec+'</strong>':'Fits within current pool';
+  } else {
+    recEl.textContent='';
+  }
+  // badge on CC tab
+  var ccBadge=document.querySelector('#subCC .stb-badge');
+  if(remaining<0){
+    if(!ccBadge){var b=document.createElement('span');b.className='stb-badge';b.textContent='!';document.getElementById('subCC').appendChild(b);}
+  } else {
+    if(ccBadge)ccBadge.remove();
+  }
+}
+
+// ===== PART 1 =====
+function setInputMode(m){
+  inputMode=m;
+  document.getElementById('modeCustom').classList.toggle('active',m==='custom');
+  document.getElementById('modeBundle').classList.toggle('active',m==='bundle');
+  document.getElementById('customInputWrap').style.display=m==='custom'?'block':'none';
+  document.getElementById('bundleInputWrap').style.display=m==='bundle'?'block':'none';
+  if(m==='bundle'&&selectedBundle)applyBundle(selectedBundle);
+  else if(m==='custom')calc();
+}
+
+function selectBundle(key){
+  selectedBundle=key;
+  ['bEntry','bDept','bScale','bEnt'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  var map={entry:'bEntry',dept:'bDept',scale:'bScale',enterprise:'bEnt'};
+  document.getElementById(map[key]).classList.add('active');
+  applyBundle(key);
+}
+
+function applyBundle(key){
+  var b=BUNDLES[key];
+  annualCredits=b.credits;
+  var band=BANDS[0]; // all bundles in band 1
+  document.getElementById('zeroState1').style.display='none';
+  document.getElementById('calcResults1').style.display='block';
+  document.getElementById('copyBtn').disabled=false;
+  document.getElementById('tab2Notice').style.display='inline';
+  document.getElementById('bundleNextBtn').style.display='block';
+  document.getElementById('bandLabel').textContent=band.label;
+  document.getElementById('inputChain').innerHTML=
+    '<span class="chain-step"><span class="chain-val">'+b.name+' bundle</span></span>'+
+    '<span class="chain-arrow">&#8594;</span>'+
+    '<span class="chain-step"><span class="chain-val">'+fmt(b.credits)+'</span> credits</span>'+
+    '<span class="chain-arrow">&#8594;</span>'+
+    '<span class="chain-step"><span class="chain-val">'+b.units+'</span> units @ Floor $100</span>';
+  renderBundlePricingCols(b,band);
+  lastListSku=Math.ceil(b.credits/20000);
+  renderValueTabShell();
+  updateCounter();
+  var note=document.getElementById('noteInput').value.trim();
+  var nd=document.getElementById('noteDisplay1');
+  if(note){nd.style.display='block';nd.innerHTML='<span class="note-name">Note:</span>'+esc(note);}
+  else{nd.style.display='none';}
+}
+
+function renderBundlePricingCols(b,band){
+  var cols={list:{price:band.list},target:{price:band.target},floor:{price:band.floor}};
+  Object.keys(cols).forEach(function(k){
+    var p=cols[k].price;
+    var sku=b.units; // pre-set units
+    var billed=sku*p;
+    var cr=creditsFromSku(sku);
+    document.getElementById(k+'Price').textContent='$'+p;
+    document.getElementById(k+'OpRate').textContent=fmtRate(p);
+    document.getElementById(k+'Sku').textContent=fmt(sku);
+    document.getElementById(k+'Billed').textContent=fmtd(billed);
+    document.getElementById(k+'Credits').textContent=fmt(cr);
+  });
+  // custom col
+  var cp=parseFloat(document.getElementById('customPriceInput').value)||null;
+  renderCustomCol(cp,null,null,b.units);
+}
+
+function renderStdCol(prefix,price,ic,id){
+  var sku=ic!==null?skuFromCredits(ic):skuFromDollars(id,price);
+  var billed=sku*price,cr=creditsFromSku(sku);
+  document.getElementById(prefix+'Price').textContent='$'+price;
+  document.getElementById(prefix+'OpRate').textContent=fmtRate(price);
+  document.getElementById(prefix+'Sku').textContent=fmt(sku);
+  document.getElementById(prefix+'Billed').textContent=fmtd(billed);
+  document.getElementById(prefix+'Credits').textContent=fmt(cr);
+  return sku;
+}
+
+function renderCustomCol(cp,ic,id,fixedSku){
+  var el=document.getElementById('customBody');
+  if(!cp||cp<=0){el.innerHTML='<div class="cust-empty">Enter a unit price to see custom tier results.</div>';return;}
+  var sku=fixedSku!==undefined?fixedSku:(ic!==null?skuFromCredits(ic):skuFromDollars(id,cp));
+  var billed=sku*cp,cr=creditsFromSku(sku),band=getBand(sku);
+  el.innerHTML='<div class="pr"><div class="prl">Unit price</div><div class="prv big" style="color:var(--pur);">$'+cp+'</div><div class="prs">'+fmtRate(cp)+'</div></div>'+
+    '<div class="pr"><div class="prl">SKU qty</div><div class="prv">'+fmt(sku)+'</div><div class="prs">units</div></div>'+
+    '<div class="pr"><div class="prl">Billed total</div><div class="prv">'+fmtd(billed)+'</div></div>'+
+    '<div class="pr"><div class="prl">Gen credits</div><div class="prv">'+fmt(cr)+'</div><div class="prs">Band: '+band.label+'</div></div>';
+}
+
+function calc(){
+  if(inputMode==='bundle')return;
+  var note=document.getElementById('noteInput').value.trim();
+  var cp=parseFloat(document.getElementById('customPriceInput').value)||null;
+  var show=false,ic=null,id=null,resolved=null;
+  if(mode==='credits'){
+    var v=parseFloat(document.getElementById('creditInput').value);
+    var isM=document.getElementById('creditPeriod').value==='monthly';
+    document.getElementById('creditUnitTag').textContent=isM?'gen credits / mo':'gen credits / yr';
+    var nEl=document.getElementById('monthlyNote');
+    if(v>0&&!isNaN(v)&&isM){nEl.style.display='block';nEl.textContent=fmt(v)+' x 12 = '+fmt(v*12)+' annual credits';}
+    else{nEl.style.display='none';}
+    if(v>0&&!isNaN(v)){ic=isM?v*12:v;resolved=resolveFromCredits(ic);show=true;}
+  } else {
+    var v=parseFloat(document.getElementById('dollarInput').value);
+    if(v>0&&!isNaN(v)){id=v;resolved=resolveFromDollars(v);show=true;}
+  }
+  document.getElementById('zeroState1').style.display=show?'none':'block';
+  document.getElementById('calcResults1').style.display=show?'block':'none';
+  document.getElementById('copyBtn').disabled=!show;
+  document.getElementById('tab2Notice').style.display=show?'inline':'none';
+  if(!show){lastListSku=null;annualCredits=0;renderCustomCol(cp,null,null);updateCounter();renderValueTabShell();return;}
+  var band=resolved.band;
+  document.getElementById('bandLabel').textContent=band.label;
+  var chainEl=document.getElementById('inputChain');
+  if(ic!==null){
+    var ops=ic/20,isM2=document.getElementById('creditPeriod').value==='monthly';
+    var rawV=parseFloat(document.getElementById('creditInput').value);
+    var cl=isM2?fmt(rawV)+'/mo x12 = <span class="chain-val">'+fmt(ic)+'</span> annual credits':'<span class="chain-val">'+fmt(ic)+'</span> annual credits';
+    chainEl.innerHTML='<span class="chain-step">'+cl+'</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(ops)+'</span> ops</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+    annualCredits=ic;
+  } else {
+    var lops=id/(band.list/1000);
+    chainEl.innerHTML='<span class="chain-step"><span class="chain-val">'+fmtd(id)+'</span></span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(lops)+'</span> ops</span><span class="chain-arrow">&#8594;</span><span class="chain-step"><span class="chain-val">'+fmt(resolved.sku)+'</span> units @ List</span>';
+    annualCredits=creditsFromSku(resolved.sku);
+  }
+  var lsku=renderStdCol('list',band.list,ic,id);
+  renderStdCol('target',band.target,ic,id);
+  renderStdCol('floor',band.floor,ic,id);
+  lastListSku=lsku;
+  renderCustomCol(cp,ic,id);
+  var nd=document.getElementById('noteDisplay1');
+  if(note){nd.style.display='block';nd.innerHTML='<span class="note-name">Note:</span>'+esc(note);}
+  else{nd.style.display='none';}
+  renderValueTabShell();
+  updateCounter();
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('modeCredits').classList.toggle('active',m==='credits');
+  document.getElementById('modeDollars').classList.toggle('active',m==='dollars');
+  document.getElementById('creditsInputSection').style.display=m==='credits'?'block':'none';
+  document.getElementById('dollarsInputSection').style.display=m==='dollars'?'block':'none';
+  document.getElementById('zeroState1').style.display='block';
+  document.getElementById('calcResults1').style.display='none';
+  document.getElementById('copyBtn').disabled=true;
+  lastListSku=null;annualCredits=0;updateCounter();
+}
+
+// ===== PART 2 SHELL =====
+function renderValueTabShell(){
+  var has=annualCredits>0;
+  document.getElementById('noCreditsState2').style.display=has?'none':'block';
+  document.getElementById('valueContent2').style.display=has?'block':'none';
+  if(!has)return;
+  renderCCTab();
+  calcEst();
+}
+
+// ===== CC TAB =====
+function renderCCTab(){
+  var ccPool=Math.max(0,annualCredits-dcCredits);
+  document.getElementById('ccAvailLabel').textContent=fmt(ccPool)+' credits available for CC';
+  var cpu=ccPool/users/12;
+  renderModelGrid('nativeGrid',CC_MODELS.native,cpu);
+  renderModelGrid('partnerImageGrid',CC_MODELS.partnerImage,cpu);
+  renderModelGrid('partnerVideoGrid',CC_MODELS.partnerVideo,cpu);
+  renderModelGrid('audioGrid',CC_MODELS.audio,cpu);
+  ccCredits=0; // CC usage is illustrative, not subtracted
+  var warnEl=document.getElementById('ccOverWarning');
+  if(dcCredits>annualCredits){
+    warnEl.style.display='block';
+    warnEl.textContent='DC usage already exceeds the pool. Consider stepping up to the next bundle before adding CC usage.';
+  } else if(ccPool<annualCredits*0.1){
+    warnEl.style.display='block';
+    warnEl.textContent='Less than 10% of the pool remains after DC. Creative usage will be limited — consider a larger bundle.';
+  } else {
+    warnEl.style.display='none';
+  }
+  document.getElementById('vidSecsLabel').textContent=vidSecs;
+}
+
+function renderModelGrid(gridId,models,cpu){
+  var el=document.getElementById(gridId);
+  el.innerHTML='';
+  models.forEach(function(m){
+    var cpg=m.type==='video'?m.creditsPerSec*vidSecs:m.creditsPerGen;
+    var gpm=cpu/cpg,tpm=gpm*users;
+    var pct=Math.min(100,(cpg/Math.max(cpu,1))*100);
+    var bc=pct>80?'danger':pct>50?'warn':'';
+    var badgeMap={native:'Firefly',partner:'Partner',video:'Video',audio:'Audio'};
+    var ul=m.unit||(m.type==='video'?vidSecs+'-sec videos / user / mo':m.type==='audio'?'1k-char blocks / user / mo':'images / user / mo');
+    var cn=m.note||(m.type==='video'?(m.creditsPerSec*vidSecs)+' cr ('+m.creditsPerSec+' cr/sec x '+vidSecs+'s)':cpg+' cr / gen');
+    el.innerHTML+='<div class="model-card">'+
+      '<div class="model-card-top"><span class="model-name">'+m.name+'</span><span class="model-badge badge-'+m.badge+'">'+badgeMap[m.badge]+'</span></div>'+
+      '<div class="model-stat"><span class="model-gen-count">'+formatGens(gpm)+'</span><span class="model-gen-label">'+ul+'</span></div>'+
+      '<div class="model-gen-sub">'+fmt(tpm)+' total / mo across '+users+' users</div>'+
+      '<div class="pool-bar-wrap"><div class="pool-bar-track"><div class="pool-bar-fill '+bc+'" style="width:'+pct+'%"></div></div>'+
+      '<div class="pool-bar-label">'+cn+'</div></div></div>';
+  });
+}
+
+// ===== DC ESTIMATOR =====
+// Scale template defaults to a share of the available credit pool
+// so a small bundle always starts with sensible numbers, not instant overrun.
+function scaleDeptDefaults(t){
+  // Figure out how many departments are already active (including this new one)
+  var activeDepts=depts.length+1;
+  // Give this department a proportional share of the pool
+  // Reserve 20% headroom and split evenly across departments
+  var poolShare=annualCredits>0?Math.floor((annualCredits*0.8)/activeDepts):0;
+  if(poolShare<=0){
+    // No pool set yet — use template defaults as-is
+    return {
+      kbDocs:t.kbDocs,kbUsers:t.kbUsers,kbNonStudio:t.kbNonStudio,kbQueryRate:t.kbQueryRate,
+      anlDocs:t.anlDocs,anlAttrRate:t.anlAttrRate,anlExtType:t.anlExtType
+    };
+  }
+  var kbDocs=0,kbUsers=t.kbUsers,kbNonStudio=t.kbNonStudio,kbQueryRate=t.kbQueryRate;
+  var anlDocs=0,anlAttrRate=t.anlAttrRate,anlExtType=t.anlExtType;
+
+  if(t.useKB&&!t.useAnl){
+    // KB only: budget = docs*150 + nonStudio*qpm*12*50
+    // Solve for docs given fixed users/query rate
+    var qpm=QUERY_RATES[kbQueryRate]||15;
+    var queryCost=kbNonStudio*qpm*12*50;
+    var docsCredit=Math.max(0,poolShare-queryCost);
+    kbDocs=Math.floor(docsCredit/150);
+  } else if(t.useAnl&&!t.useKB){
+    // Analyzer only: budget = docs*(150 + ecpd + attrs*50)
+    var ecpd=anlExtType==='table'?300:50;
+    var attrs=ATTR_RATES[anlAttrRate]||25;
+    var costPerDoc=150+ecpd+(attrs*50);
+    anlDocs=Math.floor(poolShare/costPerDoc);
+  } else if(t.useKB&&t.useAnl){
+    // Split pool 50/50 between KB and Analyzer
+    var half=Math.floor(poolShare/2);
+    var qpm2=QUERY_RATES[kbQueryRate]||15;
+    var queryCost2=kbNonStudio*qpm2*12*50;
+    kbDocs=Math.floor(Math.max(0,half-queryCost2)/150);
+    var ecpd2=anlExtType==='table'?300:50;
+    var attrs2=ATTR_RATES[anlAttrRate]||25;
+    var costPerDoc2=150+ecpd2+(attrs2*50);
+    anlDocs=Math.floor(half/costPerDoc2);
+  }
+  return {
+    kbDocs:Math.max(0,kbDocs),kbUsers:kbUsers,kbNonStudio:kbNonStudio,kbQueryRate:kbQueryRate,
+    anlDocs:Math.max(0,anlDocs),anlAttrRate:anlAttrRate,anlExtType:anlExtType
+  };
+}
+
+function addDeptFromTemplate(key){
+  // Toggle: if already added, remove it
+  var existing=depts.findIndex(function(d){return d.templateKey===key;});
+  if(existing>-1){
+    depts.splice(existing,1);
+    document.querySelectorAll('.dept-btn').forEach(function(btn){
+      if(btn.getAttribute('onclick')==="addDeptFromTemplate('"+key+"')"){
+        btn.classList.remove('active');
+      }
+    });
+    renderDeptList();calcEst();return;
+  }
+  // Add with pool-scaled defaults
+  deptCounter++;
+  var t=DEPT_TEMPLATES[key];
+  var scaled=scaleDeptDefaults(t);
+  depts.push({
+    id:'dept'+deptCounter,
+    templateKey:key,
+    name:t.name,
+    useKB:t.useKB,useAnl:t.useAnl,
+    kbDocs:scaled.kbDocs,kbUsers:scaled.kbUsers,kbNonStudio:scaled.kbNonStudio,kbQueryRate:scaled.kbQueryRate,
+    anlDocs:scaled.anlDocs,anlAttrRate:scaled.anlAttrRate,anlExtType:scaled.anlExtType,
+    disc:t.disc
+  });
+  document.querySelectorAll('.dept-btn').forEach(function(btn){
+    if(btn.getAttribute('onclick')==="addDeptFromTemplate('"+key+"')"){
+      btn.classList.add('active');
+    }
+  });
+  renderDeptList();calcEst();
+}
+
+function removeDept(id){
+  var d=depts.find(function(d){return d.id===id;});
+  if(d){
+    document.querySelectorAll('.dept-btn').forEach(function(btn){
+      if(btn.getAttribute('onclick')==="addDeptFromTemplate('"+d.templateKey+"')"){
+        btn.classList.remove('active');
+      }
+    });
+  }
+  depts=depts.filter(function(d){return d.id!==id;});
+  renderDeptList();calcEst();
+}
+
+function toggleDeptFeature(id,feat){
+  var d=depts.find(function(d){return d.id===id;});
+  if(!d)return;
+  if(feat==='kb')d.useKB=!d.useKB;else d.useAnl=!d.useAnl;
+  renderDeptList();calcEst();
+}
+
+function deptSummaryTiles(d){
+  // Returns informative summary HTML based on current field values
+  var tiles=[];
+  if(d.useKB){
+    var qpm=QUERY_RATES[d.kbQueryRate]||15;
+    var ingestCost=d.kbDocs*150;
+    var queryCostAnnual=d.kbNonStudio*qpm*12*50;
+    var totalQueriesPerMonth=d.kbNonStudio*qpm;
+    tiles.push(
+      {label:'Docs ingested',value:fmt(d.kbDocs),sub:'one-time setup',color:'var(--tel)',bg:'var(--tel-bg)'},
+      {label:'Queries / month',value:fmt(totalQueriesPerMonth),sub:fmt(d.kbNonStudio)+' users x '+qpm+'/mo',color:'var(--tel)',bg:'var(--tel-bg)'},
+      {label:'Ingestion cost',value:fmt(ingestCost)+' cr',sub:d.kbDocs+' docs x 150 cr',color:'var(--tel)',bg:'var(--tel-bg)'},
+      {label:'Annual query cost',value:fmt(queryCostAnnual)+' cr',sub:fmt(totalQueriesPerMonth)+'/mo x 12 x 50 cr',color:'var(--tel)',bg:'var(--tel-bg)'}
+    );
+  }
+  if(d.useAnl){
+    var ecpd=d.anlExtType==='table'?300:50;
+    var attrs=ATTR_RATES[d.anlAttrRate]||25;
+    var ingestCostAnl=d.anlDocs*150;
+    var extractCost=d.anlDocs*ecpd;
+    var attrCost=d.anlDocs*attrs*50;
+    var totalAttrsExtracted=d.anlDocs*attrs;
+    tiles.push(
+      {label:'Docs processed',value:fmt(d.anlDocs),sub:'annual volume',color:'var(--red)',bg:'var(--red-bg)'},
+      {label:'Attributes extracted',value:fmt(totalAttrsExtracted),sub:attrs+' attrs x '+fmt(d.anlDocs)+' docs',color:'var(--red)',bg:'var(--red-bg)'},
+      {label:'Ingestion cost',value:fmt(ingestCostAnl)+' cr',sub:d.anlDocs+' docs x 150 cr',color:'var(--red)',bg:'var(--red-bg)'},
+      {label:'Extraction cost',value:fmt(extractCost+attrCost)+' cr',sub:ecpd+' cr/doc + '+attrs+' attrs x 50 cr',color:'var(--red)',bg:'var(--red-bg)'}
+    );
+  }
+  if(!tiles.length)return '';
+  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">';
+  tiles.forEach(function(t){
+    html+='<div style="background:'+t.bg+';border-radius:var(--r-md);padding:10px 12px;">'+
+      '<div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:'+t.color+';opacity:.8;margin-bottom:3px;">'+t.label+'</div>'+
+      '<div style="font-family:var(--mono);font-size:15px;font-weight:500;color:'+t.color+';">'+t.value+'</div>'+
+      '<div style="font-size:10px;color:'+t.color+';opacity:.7;margin-top:2px;">'+t.sub+'</div>'+
+    '</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
+function renderDeptList(){
+  var el=document.getElementById('deptList');
+  el.innerHTML='';
+  if(!depts.length){el.innerHTML='<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--t3);">No departments yet. Select one above to start.</div>';return;}
+  depts.forEach(function(d){
+    var kbc=d.useKB?'dept-toggle on kb':'dept-toggle';
+    var ac=d.useAnl?'dept-toggle on anl':'dept-toggle';
+
+    var kbS=d.useKB?
+      '<div class="dept-section-label">Knowledge Base</div>'+
+      '<div class="dept-grid">'+
+        '<div class="dept-field"><label>Total users</label><input type="number" id="'+d.id+'_kbUsers" value="'+d.kbUsers+'" min="0" step="1" oninput="syncDeptField(\''+d.id+'\',\'kbUsers\',this.value);renderDeptList();calcEst()"/></div>'+
+        '<div class="dept-field"><label>Docs to ingest</label><input type="number" id="'+d.id+'_kbDocs" value="'+d.kbDocs+'" min="0" step="1" oninput="syncDeptField(\''+d.id+'\',\'kbDocs\',this.value);renderDeptList();calcEst()"/></div>'+
+        '<div class="dept-field"><label>Query volume</label><select id="'+d.id+'_kbQueryRate" onchange="syncDeptField(\''+d.id+'\',\'kbQueryRate\',this.value);renderDeptList();calcEst()"><option value="Low"'+(d.kbQueryRate==='Low'?' selected':'')+'>Low (5/mo)</option><option value="Mid"'+(d.kbQueryRate==='Mid'?' selected':'')+'>Mid (15/mo)</option><option value="High"'+(d.kbQueryRate==='High'?' selected':'')+'>High (30/mo)</option></select></div>'+
+        '<div class="dept-field"><label>Non-Studio users</label><input type="number" id="'+d.id+'_kbNonStudio" value="'+d.kbNonStudio+'" min="0" step="1" oninput="syncDeptField(\''+d.id+'\',\'kbNonStudio\',this.value);renderDeptList();calcEst()"/></div>'+
+      '</div>':'';
+
+    var aS=d.useAnl?
+      '<div class="dept-section-label">Analyzer</div>'+
+      '<div class="dept-grid">'+
+        '<div class="dept-field"><label>Docs to process</label><input type="number" id="'+d.id+'_anlDocs" value="'+d.anlDocs+'" min="0" step="1" oninput="syncDeptField(\''+d.id+'\',\'anlDocs\',this.value);renderDeptList();calcEst()"/></div>'+
+        '<div class="dept-field"><label>Attributes / doc</label><select id="'+d.id+'_anlAttrRate" onchange="syncDeptField(\''+d.id+'\',\'anlAttrRate\',this.value);renderDeptList();calcEst()"><option value="Low"'+(d.anlAttrRate==='Low'?' selected':'')+'>Low (10)</option><option value="Mid"'+(d.anlAttrRate==='Mid'?' selected':'')+'>Mid (25)</option><option value="High"'+(d.anlAttrRate==='High'?' selected':'')+'>High (100)</option></select></div>'+
+        '<div class="dept-field"><label>Extraction type</label><select id="'+d.id+'_anlExtType" onchange="syncDeptField(\''+d.id+'\',\'anlExtType\',this.value);renderDeptList();calcEst()"><option value="strict"'+(d.anlExtType==='strict'?' selected':'')+'>Strict (50 cr)</option><option value="interpretive"'+(d.anlExtType==='interpretive'?' selected':'')+'>Interpretive (50 cr)</option><option value="table"'+(d.anlExtType==='table'?' selected':'')+'>Table (300 cr)</option></select></div>'+
+      '</div>':'';
+
+    // Informative summary tiles
+    var summaryTiles=deptSummaryTiles(d);
+
+    // Discovery questions
+    var discSections=[];
+    if(d.useKB&&d.disc.kb.length){d.disc.kb.forEach(function(s){discSections.push(s);});}
+    if(d.useAnl&&d.disc.anl.length){d.disc.anl.forEach(function(s){discSections.push(s);});}
+    var discHtml='';
+    if(discSections.length){
+      discSections.forEach(function(s){
+        discHtml+='<div class="disc-section"><div class="disc-section-label">'+s.section+'</div>';
+        s.qs.forEach(function(q,qi){discHtml+='<div class="disc-q"><span class="disc-q-num">'+(qi+1)+'.</span>'+esc(q)+'</div>';});
+        discHtml+='</div>';
+      });
+    }
+    var discBlock=discSections.length?
+      '<div class="discovery-wrap">'+
+        '<div class="discovery-toggle" onclick="toggleDisc(\'disc_'+d.id+'\')">'+
+          '<span class="discovery-toggle-label">&#128172; Discovery questions</span>'+
+          '<span class="disc-arrow" id="disc_'+d.id+'Arrow">&#9660;</span>'+
+        '</div>'+
+        '<div class="discovery-body" id="disc_'+d.id+'">'+discHtml+'</div>'+
+      '</div>':'';
+
+    el.innerHTML+=
+      '<div class="dept-card">'+
+        '<div class="dept-card-header"><span class="dept-card-name">'+esc(d.name)+'</span><button class="dept-remove" onclick="removeDept(\''+d.id+'\')">Remove</button></div>'+
+        '<div class="dept-toggles">'+
+          '<button class="'+kbc+'" onclick="toggleDeptFeature(\''+d.id+'\',\'kb\')">Knowledge Base</button>'+
+          '<button class="'+ac+'" onclick="toggleDeptFeature(\''+d.id+'\',\'anl\')">Analyzer</button>'+
+        '</div>'+
+        kbS+aS+summaryTiles+discBlock+
+      '</div>';
+  });
+}
+
+function syncDeptField(id,field,val){
+  var d=depts.find(function(d){return d.id===id;});
+  if(!d)return;
+  d[field]=isNaN(parseFloat(val))?val:parseFloat(val)||0;
+}
+
+function calcEst(){
+  if(!depts.length){
+    document.getElementById('estZero').style.display='block';
+    document.getElementById('estContent').style.display='none';
+    dcCredits=0;updateCounter();renderCCTab();return;
+  }
+  document.getElementById('estZero').style.display='none';
+  document.getElementById('estContent').style.display='block';
+  var sd=parseFloat(document.getElementById('anlSetupDocs').value)||100;
+  var sa=parseFloat(document.getElementById('anlSetupAttrs').value)||35;
+  var setupCost=(sd*150)+(sd*sa*50);
+  var totalKB=0,totalAnl=setupCost,rows='';
+  depts.forEach(function(d){
+    var dKB=0,dAnl=0;
+    if(d.useKB){
+      var qpm=QUERY_RATES[d.kbQueryRate]||15;
+      dKB=(d.kbDocs*150)+(d.kbNonStudio*qpm*12*50);
+    }
+    if(d.useAnl){
+      var attrs=ATTR_RATES[d.anlAttrRate]||25;
+      var ecpd=d.anlExtType==='table'?300:50;
+      dAnl=(d.anlDocs*150)+(d.anlDocs*ecpd)+(d.anlDocs*attrs*50);
+    }
+    totalKB+=dKB;totalAnl+=dAnl;
+    rows+='<tr style="border-bottom:1px solid var(--border);">'+
+      '<td style="padding:8px 10px;font-size:13px;">'+esc(d.name)+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:'+(d.useKB?'var(--tel)':'var(--t3)')+';">'+(d.useKB?fmt(Math.round(dKB)):'--')+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:'+(d.useAnl?'var(--red)':'var(--t3)')+';">'+(d.useAnl?fmt(Math.round(dAnl)):'--')+'</td>'+
+      '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;font-weight:500;">'+fmt(Math.round(dKB+dAnl))+'</td></tr>';
+  });
+  var grand=Math.round(totalKB+totalAnl);
+  dcCredits=grand;
+  document.getElementById('estKbTotal').textContent=fmt(Math.round(totalKB));
+  document.getElementById('estAnlTotal').textContent=fmt(Math.round(totalAnl));
+  document.getElementById('estGrandTotal').textContent=fmt(grand);
+  document.getElementById('deptBreakdown').innerHTML=rows?
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px;">'+
+    '<thead><tr style="background:var(--s2);">'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Dept</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--tel-s);">KB</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--red-s);">Analyzer</th>'+
+    '<th style="padding:8px 10px;text-align:left;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);">Total</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody>'+
+    '<tfoot><tr style="background:var(--s2);">'+
+    '<td style="padding:8px 10px;font-size:12px;font-weight:500;color:var(--t2);">Analyzer setup buffer</td>'+
+    '<td style="padding:8px 10px;color:var(--t3);">--</td>'+
+    '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;color:var(--red);">'+fmt(Math.round(setupCost))+'</td>'+
+    '<td style="padding:8px 10px;font-family:var(--mono);font-size:13px;font-weight:500;">'+fmt(Math.round(setupCost))+'</td>'+
+    '</tr></tfoot></table>':'';
+
+  // Pool comparison
+  var cEl=document.getElementById('poolComparison');
+  var goCCEl=document.getElementById('goCCPrompt');
+  var priEl=document.getElementById('priorityPrompt');
+  if(annualCredits<=0){
+    cEl.innerHTML='<div style="font-size:13px;color:var(--t2);padding:12px 0;">Enter a credit pool in Part 1 to compare.</div>';
+    goCCEl.style.display='none';priEl.style.display='none';
+  } else {
+    var diff=annualCredits-grand,pct=Math.min(100,(grand/annualCredits)*100);
+    var bc=pct<=80?'compare-ok':pct<=100?'compare-warn':'compare-over';
+    var verdict=diff>=0?
+      'Pool covers DC with <strong>'+fmt(diff)+' credits remaining</strong> ('+(100-Math.round(pct))+'% of pool) — enough to add Creative Cloud usage.':
+      '<strong>DC alone exceeds the pool by '+fmt(Math.abs(diff))+' credits</strong> ('+Math.round(pct-100)+'% over). Recommend stepping up the bundle before adding CC.';
+    cEl.innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">'+
+      '<div style="background:var(--acc-bg);border-radius:var(--r-md);padding:12px 14px;"><div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-s);margin-bottom:3px;">Annual pool</div><div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--acc-t);">'+fmt(annualCredits)+'</div></div>'+
+      '<div style="background:var(--s2);border-radius:var(--r-md);padding:12px 14px;"><div style="font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:3px;">DC estimated need</div><div style="font-family:var(--mono);font-size:20px;font-weight:500;color:var(--t1);">'+fmt(grand)+'</div></div>'+
+      '</div>'+
+      '<div style="height:8px;background:var(--s2);border-radius:4px;overflow:hidden;margin-bottom:4px;">'+
+      '<div class="compare-bar-fill '+bc+'" style="width:'+Math.min(pct,100)+'%;height:100%;border-radius:4px;"></div></div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:10px;"><span>0</span><span>'+fmt(annualCredits)+' (pool)</span></div>'+
+      '<div style="padding:10px 14px;background:var(--s2);border-radius:var(--r-md);font-size:13px;color:var(--t2);line-height:1.6;">'+verdict+'</div>';
+
+    // Go to CC prompt
+    if(diff>0){
+      goCCEl.style.display='flex';
+      document.getElementById('goCCRemText').textContent=fmt(diff)+' credits remaining after DC';
+    } else {
+      goCCEl.style.display='none';
+    }
+
+    // Priority prompt
+    priEl.style.display='block';
+    var steps=[];
+    if(diff<0){
+      steps.push({num:1,text:'<strong>DC scope is over the pool.</strong> Size the bundle up first — DC workloads should be fully covered before adding CC. Recommended: '+recommendBundle(grand)+'.'});
+      steps.push({num:2,text:'<strong>Scope DC to fit the current pool</strong> by reducing doc count, query volume, or deferring Analyzer setup to a second phase. Use the department fields to adjust.'});
+      steps.push({num:3,text:'<strong>Once DC is sized correctly</strong>, the remaining credits tell you exactly what CC can support. Use the Add Creative Cloud tab to show that value.'});
+    } else if(diff/annualCredits<0.15){
+      steps.push({num:1,text:'<strong>DC is sized well</strong> but leaves limited headroom for CC. Present DC as the primary value driver and CC as an add-on conversation once the customer sees the DC ROI.'});
+      steps.push({num:2,text:'<strong>Show the CC tab</strong> to illustrate what the remaining '+fmt(diff)+' credits support — even a modest Firefly image volume can be compelling.'});
+      steps.push({num:3,text:'<strong>Anchor the upsell</strong> on CC usage — once the customer starts generating creatively, the repurchase conversation writes itself.'});
+    } else {
+      steps.push({num:1,text:'<strong>DC is well-covered</strong> with '+fmt(diff)+' credits remaining. Open the Add Creative Cloud tab to show what those credits unlock across Firefly, partner image, and video models.'});
+      steps.push({num:2,text:'<strong>Lead with DC value</strong> — structured document workflows are the anchor. CC is the expansion story that grows with usage.'});
+      steps.push({num:3,text:'<strong>Set expectations on video</strong> — at 30 seconds per generation, video burns credits fast. Use that to drive the repurchase conversation now rather than at renewal.'});
+    }
+    document.getElementById('prioritySteps').innerHTML=steps.map(function(s){
+      return '<div class="priority-step"><div class="priority-num">'+s.num+'</div><div class="priority-text">'+s.text+'</div></div>';
+    }).join('');
+  }
+  updateCounter();
+  renderCCTab();
+}
+
+// ===== CONTROLS =====
+function adjustUsers(d){users=Math.max(1,users+d);document.getElementById('userCountDisp').textContent=users;renderCCTab();}
+function adjustVidSecs(d){vidSecs=Math.max(5,vidSecs+d);document.getElementById('vidSecsDisp').textContent=vidSecs;renderCCTab();}
+
+function switchTab(n){
+  [1,2].forEach(function(i){
+    document.getElementById('panel'+i).classList.toggle('active',n===i);
+    document.getElementById('tabBtn'+i).classList.toggle('active',n===i);
+  });
+  if(n===2)renderValueTabShell();
+}
+
+function switchSubTab(t){
+  subTab=t;
+  document.getElementById('subDC').classList.toggle('active',t==='dc');
+  document.getElementById('subCC').classList.toggle('active',t==='cc');
+  document.getElementById('subPanelDC').classList.toggle('active',t==='dc');
+  document.getElementById('subPanelCC').classList.toggle('active',t==='cc');
+  if(t==='cc')renderCCTab();
+}
+
+function toggleDisc(id){
+  var body=document.getElementById(id);
+  var arrow=document.getElementById(id+'Arrow');
+  if(!body)return;
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(arrow)arrow.classList.toggle('open',!open);
+}
+
+function resetAll(){
+  document.getElementById('creditInput').value='';
+  document.getElementById('dollarInput').value='';
+  document.getElementById('noteInput').value='';
+  document.getElementById('customPriceInput').value='';
+  document.getElementById('creditPeriod').value='annual';
+  document.getElementById('creditUnitTag').textContent='gen credits / yr';
+  document.getElementById('monthlyNote').style.display='none';
+  selectedBundle=null;
+  ['bEntry','bDept','bScale','bEnt'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+  document.getElementById('bundleNextBtn').style.display='none';
+  depts=[];deptCounter=0;
+  document.querySelectorAll('.dept-btn').forEach(function(btn){btn.classList.remove('active');});
+  lastListSku=null;annualCredits=0;dcCredits=0;ccCredits=0;
+  document.getElementById('zeroState1').style.display='block';
+  document.getElementById('calcResults1').style.display='none';
+  document.getElementById('copyBtn').disabled=true;
+  document.getElementById('tab2Notice').style.display='none';
+  updateCounter();
+  renderValueTabShell();
+}
+
+function copySku(){
+  if(lastListSku===null)return;
+  navigator.clipboard.writeText(String(lastListSku)).then(function(){
+    var t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},2000);
+  });
+}
+</script>
+</body>
+</html>
